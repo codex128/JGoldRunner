@@ -2,7 +2,7 @@
 A spin-off of LodeRunner built with JMonkeyEngine3.
 
 # Download
-1. Download the zip file for your system from the releases. Windows is currently not supported.
+1. Download the zip file for your system from the releases.
 2. Extract the zip file.
 3. Run the launcher in the resulting folder.
 
@@ -19,9 +19,9 @@ A spin-off of LodeRunner built with JMonkeyEngine3.
 
 # Additional Tips
 * You can fall through holes you dig, but enemies will get stuck inside. This is how you avoid enemies.
-* You can walk on **top** of enemies without getting caught. The only exception to this rule are ladders, where the enemies climb up into you.
-* Enemies can pick up gold, too. You can force them to drop their gold by putting them in a hole.
-* After a bit, an enemy may try to climb out of a hole he fell in. You can stand on top of him to stop this.
+* You can walk on top of enemies without getting caught.
+* Enemies can pick up gold, too. You can force them to drop their gold by dropping them in a hole you dig.
+* After a period of time, an enemy may try to climb out of a hole he fell into. You can stand on top of him to stop this.
 
 # Settings
 * Enable/disable boosting.
@@ -32,26 +32,22 @@ A spin-off of LodeRunner built with JMonkeyEngine3.
 
 # Platform Support
 This game is supported primarily on Linux.
-MacOS has not been tested, but is expected to work.
-Windows is **not** supported yet.
+MacOS and Windows have not been tested, but are expected to work.
 
 # Save Data
 Save data will be stored in ".goldrunnerdata" in the user's home folder.<br>
 Exported level packages will be stored under ".goldrunnerdata/exports".
+Delete 
 
-# Sources
-Download "JGoldRunner-sources.zip" from the releases.
-
-Dependencies:
+# Building from Source
+The project requires these dependencies:
 * JMonkeyEngine 3.5+
-* Lemur 1.16.0+
+* Lemur 1.16.0+ (with Lemur-proto)
 * J3map 0.0.1+ (https://github.com/codex128/J3map/releases/tag/v0.0.1)
 * JmeUtilityLibrary 0.0.1+ (https://github.com/codex128/JmeUtilityLibrary/releases/tag/v0.0.1)
+Open an issue if you have trouble.
 
 # Known Issues
 * GUI does not support larger or smaller window sizes.
 * Gold visuals sometimes disappear after an enemy drops it.
-* Multiple heros can be added after closing and opening the level editor.
 * JMonkeyEngine3.6: level editor seems to be crashing on exit.
-* Package Editor: swapping levels crashes during swap or cancel.
-* Level Editor: Gold is too difficult to see.
