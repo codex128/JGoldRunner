@@ -1,0 +1,8 @@
+Material My Material : Common/MatDefs/Light/Lighting.j3md {
+     MaterialParameters {
+        DiffuseMap : "Textures/Terrain/BrickWall/BrickWall.jpg"
+        NormalMap : "Textures/Terrain/BrickWall/BrickWall_normal.jpg"
+     }
+    AdditionalRenderState {
+    }
+}

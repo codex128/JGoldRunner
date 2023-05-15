@@ -1,0 +1,21 @@
+units: {
+    Brick:      ["Brick", "brick", "0"];
+    Concrete:   ["Concrete", "concrete", "1"];
+    Ladder:     ["Ladder", "ladder", "2"];
+    H-Ladder:   ["Escape Ladder", "escape-ladder", "3"];
+    Bar:        ["Bar", "bar", "4"];
+    Gold:       ["Gold", "gold", "5"];
+    Hero:       ["Hero", "hero", "6"];
+    Enemy:      ["Enemy", "enemy", "7"];
+    Platform:   ["Platform", "platform", "8"];
+    Nemesis:    ["Nemesis", "nemesis", "9"];
+}
+props: {
+    dining_room: {
+        name: "Dining Room";
+        model: "Scenes/rooms/dining_room.j3o";
+        size: Point(4, -2);
+        translation: Vector3f(0f, 0f, 0f);
+        scale: 1f;
+    }
+}
