@@ -5,7 +5,7 @@
  */
 package codex.goldrunner.runners;
 
-import codex.goldrunner.runners.recording.RunnerRecorder;
+import codex.goldrunner.game.replays.RunnerRecorder;
 import codex.goldrunner.items.ItemControl;
 import codex.goldrunner.units.UnitControl;
 import com.jme3.anim.AnimComposer;
@@ -21,8 +21,6 @@ import com.jme3.scene.control.AbstractControl;
 import java.util.Collection;
 import java.util.LinkedList;
 import codex.goldrunner.items.ItemCarrier;
-import codex.goldrunner.runners.recording.RecordedAction;
-import java.util.function.BiFunction;
 
 /**
  *
@@ -43,16 +41,11 @@ public abstract class RunnerControl extends AbstractControl
 	boolean alive = true;
 	boolean climbingOut = false;
 	boolean pause = false;
-	RunnerRecorder record;
 	
 	
 	protected RunnerControl() {}
 	public RunnerControl(UnitControl start) {
 		push(start);
-	}
-	public RunnerControl(UnitControl start, RunnerRecorder record) {
-		this(start);
-		setRecorder(record);
 	}
 	
 	
@@ -118,9 +111,6 @@ public abstract class RunnerControl extends AbstractControl
 	// actions
 	protected void push(UnitControl unit) {
 		if (idle > 0f) {
-			if (record != null) {
-				record.push(new RecordedAction("idle", idle));
-			}
 			idle = 0f;
 		}
 		occupy.addLast(unit);
@@ -139,9 +129,6 @@ public abstract class RunnerControl extends AbstractControl
 				spatial.setLocalTranslation(unit.getSpatial().getLocalTranslation());
 			}
 			else this.transition = true;
-			if (record != null) {
-				record.push(new RecordedAction("warp", unit.getIndex()));
-			}
 			return true;
 		}
 		return false;
@@ -161,9 +148,6 @@ public abstract class RunnerControl extends AbstractControl
 			transition = true;
 			climbingOut = false;
 			lastmove = direction;
-			if (record != null) {
-				record.push(new RecordedAction("move", direction));
-			}
 			return true;
 		}
 		else return false;
@@ -344,13 +328,6 @@ public abstract class RunnerControl extends AbstractControl
 	}
 	public void setAlive(boolean alive) {
 		this.alive = alive;
-	}
-	public void setRecorder(RunnerRecorder record) {
-		this.record = record;
-		if (this.record != null) {
-			this.record.setStartLocation(occupy.getLast().getIndex());
-			this.record.setStartSpeed(getRealSpeed());
-		}
 	}
 	
 	@Override

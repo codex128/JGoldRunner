@@ -24,8 +24,6 @@ import java.awt.Point;
 import java.io.IOException;
 import codex.goldrunner.items.ItemCarrier;
 import com.jme3.anim.AnimComposer;
-import com.jme3.scene.Geometry;
-import com.jme3.scene.shape.Quad;
 
 /**
  *

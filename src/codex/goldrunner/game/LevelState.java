@@ -78,6 +78,7 @@ public class LevelState extends BaseAppState implements ActionListener,
 	LinkedList<RunnerControl> runners = new LinkedList<>();
 	LinkedList<EnemyControl> enemies = new LinkedList<>();
 	int gold = 0;
+	boolean is3D = false;
 	boolean allgoldcollected = false;
 	Timer endtimer = new Timer(.3f);
 	AudioNode music;
@@ -256,6 +257,7 @@ public class LevelState extends BaseAppState implements ActionListener,
 			throw new IncompatibilityException(
 				"This program cannot read levels of version "+(LevelData.VERSION+1)+" or above!");
 		}
+		is3D = this.data.getSource().getBoolean("3D", false);
 		final int topmargin = 6;
 		loadMap(topmargin);
 		loadTopMargin(topmargin);
@@ -294,8 +296,10 @@ public class LevelState extends BaseAppState implements ActionListener,
 	private void loadMap(int topmargin) {		
 		J3map cipher = data.getSource().getJ3map("cipher");
 		if (cipher == null) cipher = data.getSource();
-		data.getSource().requireProperties(J3map.createChecker("map", String[].class));
 		String[] map = data.getSource().getStringArray("map");
+		if (map == null) {
+			throw new IllegalStateException("Level data missing map!");
+		}
 		units = new UnitControl[map.length+topmargin][map[0].length()];
 		for (int i = 0; i < map.length; i++) {
 			for (int j = 0; j < map[i].length(); j++) {

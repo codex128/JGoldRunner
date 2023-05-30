@@ -9,7 +9,6 @@ import codex.goldrunner.GameGlobals;
 import codex.goldrunner.SettingsState;
 import codex.goldrunner.game.LevelState;
 import codex.goldrunner.items.ItemControl;
-import codex.goldrunner.runners.recording.RecordedAction;
 import codex.goldrunner.units.UnitControl;
 import codex.goldrunner.units.UnitLoader;
 import codex.goldrunner.util.JoystickEventListener;
@@ -53,7 +52,7 @@ public class HeroControl extends RunnerControl implements AnalogListener,
 	float energymileage = 2f;
 	float energyregen = .01f;
 	int particleDensity = 50;
-	//boolean dashingenabled = !false;
+//	boolean dashingenabled = !false;
 	ParticleEmitter emitter;
 	Node hud = new Node("hero hud");
 	ProgressBar energybar = new ProgressBar("Energy");
@@ -136,9 +135,6 @@ public class HeroControl extends RunnerControl implements AnalogListener,
 				energy = 0;
 				dashing = false;
 				emitter.setParticlesPerSec(0);
-				if (record != null) {
-					record.push(new RecordedAction("speed", getRealSpeed()));
-				}
 			}
 		}
 		else if (/*occupy.size() == 1 &&*/ (energy += energyregen) > 100) {
@@ -253,9 +249,6 @@ public class HeroControl extends RunnerControl implements AnalogListener,
 					!dashing && energy >= 100) {
 				dashing = true;
 				emitter.setParticlesPerSec(particleDensity);
-				if (record != null) {
-					record.push(new RecordedAction("speed", getRealSpeed()));
-				}
 			} break;
 		}
 	}

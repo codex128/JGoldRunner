@@ -21,38 +21,24 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package codex.goldrunner.runners.recording;
+package codex.goldrunner.game;
 
-import java.awt.Point;
-import java.io.File;
-import java.util.LinkedList;
+import codex.goldrunner.units.UnitControl;
 
 /**
  *
  * @author gary
  */
-public class RunnerRecorder {
+public class MapFace {
 	
-	Point location;
-	float speed;
-	LinkedList<RecordedAction> actions = new LinkedList<>();
+	UnitControl[][] map;
 	
-	public void setStartLocation(Point location) {
-		this.location = location;
-	}
-	public void setStartSpeed(float speed) {
-		this.speed = speed;
+	public MapFace(UnitControl[][] map) {
+		this.map = map;
 	}
 	
-	public void push(RecordedAction action) {
-		actions.addLast(action);
-	}
-	
-	public void export(String filepath) {
-		export(new File(filepath));
-	}
-	public void export(File file) {
-		
+	public UnitControl[][] getMap() {
+		return map;
 	}
 	
 }

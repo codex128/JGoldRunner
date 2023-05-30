@@ -9,6 +9,7 @@ import codex.goldrunner.util.SnowflakeFactory;
 import codex.j3map.J3map;
 import java.io.File;
 import java.io.IOException;
+import org.apache.groovy.contracts.util.Validate;
 
 /**
  *
@@ -16,6 +17,7 @@ import java.io.IOException;
  */
 public class LevelData {
 	
+	// todo: whenever level formats are changed, increase this by 1.
 	public static final int VERSION = 1;
 	
 	J3map source;
@@ -25,6 +27,7 @@ public class LevelData {
 	}
 	
 	public void setSource(J3map source) {
+		Validate.notNull(source);
 		this.source = source;
 	}
 	public J3map getSource() {
