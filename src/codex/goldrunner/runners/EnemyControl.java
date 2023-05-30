@@ -36,6 +36,7 @@ import java.util.concurrent.ThreadLocalRandom;
 public class EnemyControl extends RunnerControl implements 
 		TimerListener, UnitLoader {
 	
+	public static final float SPEED = .09f;
 	public static final int MAX_INTEL = 3;
 	private static final HashMap<String, Integer> INTELMAP = new HashMap<>();
 	static {
@@ -65,7 +66,7 @@ public class EnemyControl extends RunnerControl implements
 		initializeEnemyIntelligence(intelligence);
 		climbOutTimer.addListener(this);
 		respawnTimer.addListener(this);
-		speed = GameGlobals.Runners.ENEMY_SLOW_SPEED;
+		speed = SPEED;
 	}	
 	
 	
@@ -115,9 +116,9 @@ public class EnemyControl extends RunnerControl implements
 		// run faster if hero is above
 		if (chase.occupy.getLast() == occupy.getLast().getRelative(UnitControl.U) &&
 				occupy.getLast().getAdjacent(UnitControl.U) == null) {
-			speed = GameGlobals.Runners.ENEMY_FAST_SPEED;
+			speed = chase.getBasicSpeed();
 		}
-		else speed = GameGlobals.Runners.ENEMY_SLOW_SPEED;
+		else speed = SPEED;
 	}
 	@Override
 	public boolean move(UnitControl unit, int direction, boolean force) {

@@ -179,7 +179,7 @@ public abstract class RunnerControl extends AbstractControl
 	}
 	public boolean walk(int direction) {
 		// walks right or left if there is a solid unit down
-		assert direction == UnitControl.R || direction == UnitControl.L;
+		assert UnitControl.isHorizontal(direction);
 		UnitControl dest = occupy.getLast().getAdjacent(direction);
 		UnitControl down = occupy.getLast().getAdjacent(UnitControl.D);
 		if (dest != null && (occupy.getLast().grabbable() || down == null ||
@@ -191,8 +191,7 @@ public abstract class RunnerControl extends AbstractControl
 						.getLocalTranslation()), Vector3f.UNIT_Y);
 				spatial.setLocalRotation(rot);
 				UnitControl d = occupy.getLast().getDown();
-				if (occupy.getLast().grabbable() && d != null &&
-						!d.stand(this)) {
+				if (occupy.getLast().grabbable() && d != null && !d.stand(this)) {
 					performAnimationAction("hang");
 				}
 				else {
@@ -316,9 +315,6 @@ public abstract class RunnerControl extends AbstractControl
 	protected void snap(UnitControl unit) {
 		spatial.setLocalTranslation(
 				unit.getSpatial().getLocalTranslation());
-	}
-	public void setBasicSpeed(float speed) {
-		this.speed = speed;
 	}
 	public float getBasicSpeed() {
 		return speed;

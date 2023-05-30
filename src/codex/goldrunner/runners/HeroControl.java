@@ -40,6 +40,7 @@ import java.awt.Point;
 public class HeroControl extends RunnerControl implements AnalogListener,
 		ActionListener, JoystickEventListener, UnitLoader {
 	
+	public static final float SPEED = .12f;
 	public static final float JOYSTICK_SENSITIVITY_X = .2f;
 	public static final float JOYSTICK_SENSITIVITY_Y = .1f;
 	
@@ -75,7 +76,7 @@ public class HeroControl extends RunnerControl implements AnalogListener,
 //		initHUD(assets);
 //		//initAudio(assets);
 //		push(start);
-		speed = GameGlobals.Runners.HERO_SPEED;
+		speed = SPEED;
 	}
 	
 	

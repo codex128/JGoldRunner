@@ -89,13 +89,6 @@ public class GameGlobals {
 		}
 	}
 	
-	public static class Runners {
-		
-		public static final float ENEMY_SLOW_SPEED = .09f,
-				ENEMY_FAST_SPEED = .12f,
-				HERO_SPEED = .12f;
-	}
-	
 	public static class Gui {
 		
 		public static Vector3f getWindowSize(Application app) {
