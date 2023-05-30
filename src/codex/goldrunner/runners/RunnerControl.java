@@ -5,7 +5,7 @@
  */
 package codex.goldrunner.runners;
 
-import codex.goldrunner.game.replays.RunnerRecorder;
+import codex.goldrunner.game.MapFace;
 import codex.goldrunner.items.ItemControl;
 import codex.goldrunner.units.UnitControl;
 import com.jme3.anim.AnimComposer;
@@ -26,8 +26,7 @@ import codex.goldrunner.items.ItemCarrier;
  *
  * @author gary
  */
-public abstract class RunnerControl extends AbstractControl
-		implements Traveller, ItemCarrier {
+public abstract class RunnerControl extends AbstractControl implements Traveller, ItemCarrier {
 	
 	AnimComposer anim;
 	LinkedList<UnitControl> occupy = new LinkedList<>();
@@ -96,12 +95,9 @@ public abstract class RunnerControl extends AbstractControl
 		anim.setCurrentAction("idle");
 	}
 	private void moveToward(UnitControl unit, float speed) {
-		float dist = spatial.getLocalTranslation()
-				.distance(unit.getSpatial().getLocalTranslation());
-		if (dist >= speed) {
-			spatial.move(unit.getSpatial().getLocalTranslation()
-					.subtract(spatial.getLocalTranslation())
-					.normalizeLocal().multLocal(speed));
+		Vector3f dest = unit.getSpatial().getWorldTranslation();
+		if (spatial.getLocalTranslation().distanceSquared(dest) >= speed*speed) {
+			spatial.move(dest.subtract(spatial.getLocalTranslation()).normalizeLocal().multLocal(speed));
 		}
 		else {
 			onArrival(unit);
@@ -126,7 +122,7 @@ public abstract class RunnerControl extends AbstractControl
 			occupy.clear();
 			occupy.addLast(unit);
 			if (!transition) {
-				spatial.setLocalTranslation(unit.getSpatial().getLocalTranslation());
+				spatial.setLocalTranslation(unit.getSpatial().getWorldTranslation());
 			}
 			else this.transition = true;
 			return true;
@@ -142,8 +138,8 @@ public abstract class RunnerControl extends AbstractControl
 	}
 	public boolean move(UnitControl unit, int direction, boolean force) {
 		// transitionally moves to
-		if (alive && occupy.getLast().exit(this, force) && unit.enter(this, force) &&
-				!inTransition() && !blocked(unit, direction)) {
+		if (alive && occupy.getLast().exit(this, force) && unit.enter(this, force)
+				&& !inTransition() && !blocked(unit, direction)) {
 			push(unit);
 			transition = true;
 			climbingOut = false;
@@ -170,9 +166,9 @@ public abstract class RunnerControl extends AbstractControl
 				climbingOut || down.stand(this) || blocked(down, UnitControl.D))) {
 			if (move(dest, direction, true)) {
 				Quaternion rot = new Quaternion();
-				rot.lookAt(occupy.getLast().getSpatial().getLocalTranslation()
+				rot.lookAt(occupy.getLast().getSpatial().getWorldTranslation()
 						.subtract(occupy.getFirst().getSpatial()
-						.getLocalTranslation()), Vector3f.UNIT_Y);
+						.getWorldTranslation()), Vector3f.UNIT_Y);
 				spatial.setLocalRotation(rot);
 				UnitControl d = occupy.getLast().getDown();
 				if (occupy.getLast().grabbable() && d != null && !d.stand(this)) {
@@ -191,7 +187,7 @@ public abstract class RunnerControl extends AbstractControl
 		if (up != null) {
 			if (move(up, UnitControl.U, true)) {
 				spatial.setLocalRotation(new Quaternion()
-						.fromAngleAxis(FastMath.PI, new Vector3f(0, 1, 0)));
+						.fromAngleAxis(getCurrentFace().getAngle()+FastMath.PI, new Vector3f(0, 1, 0)));
 				performAnimationAction("climb");
 				return true;
 			}
@@ -215,7 +211,7 @@ public abstract class RunnerControl extends AbstractControl
 				!occupy.getLast().grabbable() && !climbingOut))) {
 			if (move(down, UnitControl.D, force)) {
 				spatial.setLocalRotation(occupy.getLast()
-						.getSpatial().getLocalRotation());
+						.getSpatial().getWorldRotation());
 				performAnimationAction("fall");
 				return true;
 			}
@@ -263,6 +259,9 @@ public abstract class RunnerControl extends AbstractControl
 	protected float calculateGlobalAnimationSpeed() {
 		return 1.6f;
 	}
+	protected MapFace getCurrentFace() {
+		return occupy.getLast().getLevel().getFace(occupy.getLast().getIndex().z);
+	}
 	
 	@Override
 	public ItemControl getItem() {
@@ -297,8 +296,7 @@ public abstract class RunnerControl extends AbstractControl
 		return false;
 	}
 	protected void snap(UnitControl unit) {
-		spatial.setLocalTranslation(
-				unit.getSpatial().getLocalTranslation());
+		spatial.setLocalTranslation(unit.getSpatial().getWorldTranslation());
 	}
 	public float getBasicSpeed() {
 		return speed;
@@ -358,9 +356,10 @@ public abstract class RunnerControl extends AbstractControl
 			for (RunnerControl ig : ignore) {
 				if (runner == ig) continue main;
 			}
-			if (runner.occupy.getLast() == destination) return true;
-			if (destination.inBounds(runner.getSpatial()
-					.getLocalTranslation())) return true;
+			if (runner.occupy.getLast() == destination
+					|| destination.inBounds(runner.getSpatial().getLocalTranslation())) {
+				return true;
+			}
 		}
 		return false;
 	}

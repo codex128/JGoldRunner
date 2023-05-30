@@ -18,7 +18,7 @@ import org.apache.groovy.contracts.util.Validate;
 public class LevelData {
 	
 	// todo: whenever level formats are changed, increase this by 1.
-	public static final int VERSION = 1;
+	public static final int VERSION = 2;
 	
 	J3map source;
 	

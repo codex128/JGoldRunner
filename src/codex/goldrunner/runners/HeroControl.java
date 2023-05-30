@@ -11,7 +11,9 @@ import codex.goldrunner.game.LevelState;
 import codex.goldrunner.items.ItemControl;
 import codex.goldrunner.units.UnitControl;
 import codex.goldrunner.units.UnitLoader;
+import codex.goldrunner.util.Index3i;
 import codex.goldrunner.util.JoystickEventListener;
+import codex.jmeutil.character.OrbitalCamera;
 import com.jme3.asset.AssetManager;
 import com.jme3.audio.AudioKey;
 import com.jme3.audio.AudioNode;
@@ -50,7 +52,7 @@ public class HeroControl extends RunnerControl implements AnalogListener,
 	float sneakspeed = -.05f;
 	float energy = 100f;
 	float energymileage = 2f;
-	float energyregen = .01f;
+	float energyregen = .03f;
 	int particleDensity = 50;
 //	boolean dashingenabled = !false;
 	ParticleEmitter emitter;
@@ -60,7 +62,7 @@ public class HeroControl extends RunnerControl implements AnalogListener,
 	float joystickY = 0;
 //	DynamicAnimControl dac;
 	AudioNode steps;
-	AudioNode collect;
+	OrbitalCamera camera;
 	
 	
 	/**
@@ -137,8 +139,11 @@ public class HeroControl extends RunnerControl implements AnalogListener,
 				emitter.setParticlesPerSec(0);
 			}
 		}
-		else if (/*occupy.size() == 1 &&*/ (energy += energyregen) > 100) {
+		else if ((energy += energyregen) > 100) {
 			energy = 100;
+		}
+		if (camera != null) {
+			camera.setHorizontalAngle(-getCurrentFace().getAngle());
 		}
 	}
 	private void joystickMovementY() {
@@ -204,6 +209,10 @@ public class HeroControl extends RunnerControl implements AnalogListener,
 		return (super.calculateGlobalAnimationSpeed()/getBasicSpeed())*getRealSpeed();
 	}
 	
+	public void setCameraController(OrbitalCamera camera) {
+		this.camera = camera;
+	}
+	
 	@Override
 	public float getRealSpeed() {
 		if (dashing) {
@@ -227,6 +236,9 @@ public class HeroControl extends RunnerControl implements AnalogListener,
 	}
 	public Node getHUD() {
 		return hud;
+	}
+	public OrbitalCamera getCameraController() {
+		return camera;
 	}
 	
 	@Override
@@ -303,7 +315,7 @@ public class HeroControl extends RunnerControl implements AnalogListener,
 		return new Node();
 	}
 	@Override
-	public UnitControl loadControl(String type, LevelState level, Point index) {
+	public UnitControl loadControl(String type, LevelState level, Index3i index) {
 		return new UnitControl(level, index){};
 	}
 	@Override

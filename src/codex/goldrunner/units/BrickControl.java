@@ -7,6 +7,7 @@ package codex.goldrunner.units;
 
 import codex.goldrunner.game.LevelState;
 import codex.goldrunner.runners.Traveller;
+import codex.goldrunner.util.Index3i;
 import codex.jmeutil.Timer;
 import codex.jmeutil.TimerListener;
 import com.jme3.asset.AssetManager;
@@ -31,7 +32,7 @@ public class BrickControl extends UnitControl implements TimerListener {
 	
 	
 	public BrickControl() {}
-	public BrickControl(LevelState level, Point index) {
+	public BrickControl(LevelState level, Index3i index) {
 		super(level, index);
 		time.addListener(this);
 	}
@@ -120,8 +121,7 @@ public class BrickControl extends UnitControl implements TimerListener {
 		return spat;
 	}
 	@Override
-	public UnitControl loadControl(String type, LevelState level,
-			Point index) {
+	public UnitControl loadControl(String type, LevelState level, Index3i index) {
 		BrickControl brick = new BrickControl(level, index);
 		brick.createParticleEmitter(level.getApplication().getAssetManager());		
 		return brick;

@@ -6,7 +6,6 @@
 package codex.goldrunner.runners;
 
 
-import codex.goldrunner.GameGlobals;
 import codex.goldrunner.SettingsState;
 import codex.goldrunner.game.LevelState;
 import codex.goldrunner.items.ItemControl;
@@ -16,6 +15,7 @@ import codex.goldrunner.runners.pathfinding.Pathfinder;
 import codex.goldrunner.units.BrickControl;
 import codex.goldrunner.units.UnitControl;
 import codex.goldrunner.units.UnitLoader;
+import codex.goldrunner.util.Index3i;
 import codex.jmeutil.Timer;
 import codex.jmeutil.TimerListener;
 import com.jme3.anim.SkinningControl;
@@ -33,8 +33,7 @@ import java.util.concurrent.ThreadLocalRandom;
  *
  * @author gary
  */
-public class EnemyControl extends RunnerControl implements 
-		TimerListener, UnitLoader {
+public class EnemyControl extends RunnerControl implements TimerListener, UnitLoader {
 	
 	public static final float SPEED = .09f;
 	public static final int MAX_INTEL = 3;
@@ -213,13 +212,19 @@ public class EnemyControl extends RunnerControl implements
 	
 	protected void simpleChase() {
 		if (chase == null) return;
-		Vector3f there = chase.getOccupied().getSpatial()
-				.getLocalTranslation();
+		Vector3f there = chase.getOccupied().getSpatial().getLocalTranslation();
 		Vector3f here = occupy.getLast().getSpatial().getLocalTranslation();
+		int tFace = chase.getCurrentFace().getIndex();
+		int hFace = getCurrentFace().getIndex();
 		if (inTransition()) return;
 		// if not following path, use B-line method
 		if (pathfinder.getRoute() == null && intelligence < 2 &&
-				((there.y > here.y && climb()) ||
+				((Math.abs(tFace-hFace) == 2 && walk(UnitControl.R)) ||
+				(hFace == 0 && tFace == 3 && walk(UnitControl.R)) ||
+				(hFace-tFace == 1 && walk(UnitControl.R)) ||
+				(hFace == 3 && tFace == 0 && walk(UnitControl.L)) ||
+				(tFace-hFace == 1 && walk(UnitControl.L)) ||
+				(there.y > here.y && climb()) ||
 				(there.x > here.x && walk(UnitControl.R)) ||
 				(there.x < here.x && walk(UnitControl.L)) ||
 				(there.y < here.y && fall(true)))) {
@@ -256,13 +261,13 @@ public class EnemyControl extends RunnerControl implements
 		return false;
 	}	
 	public UnitControl getSpawnableUnit() {
-		Point index = occupy.getLast().getIndex();
-		UnitControl dest = occupy.getLast().getUnitAtIndex(index.x, 0);
+		Index3i index = occupy.getLast().getIndex();
+		UnitControl dest = occupy.getLast().getUnitAtIndex(index.z, index.x, 0);
 		if (dest != null && dest.enter(this, true) && !isOccupied(dest)) {
 			return dest;
 		}
 		else {
-			UnitControl[][] units = occupy.getLast().getLevel().getUnits();
+			UnitControl[][] units = occupy.getLast().getLevel().getUnitsForFace(index.z);
 			ArrayList<Integer> indices = new ArrayList<>();
 			for (int i = 0; i < units[0].length; i++) {
 				indices.add(i);
@@ -295,7 +300,7 @@ public class EnemyControl extends RunnerControl implements
 		return new Node();
 	}
 	@Override
-	public UnitControl loadControl(String type, LevelState level, Point index) {
+	public UnitControl loadControl(String type, LevelState level, Index3i index) {
 		return new UnitControl(level, index) {};
 	}
 	@Override

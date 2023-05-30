@@ -24,21 +24,91 @@
 package codex.goldrunner.game;
 
 import codex.goldrunner.units.UnitControl;
+import codex.goldrunner.util.Index3i;
+import com.jme3.math.Quaternion;
+import com.jme3.math.Vector3f;
+import com.jme3.scene.Node;
 
 /**
  *
  * @author gary
  */
-public class MapFace {
+public class MapFace extends Node {
 	
+	LevelState level;
 	UnitControl[][] map;
+	int index;
+	float angle;
 	
-	public MapFace(UnitControl[][] map) {
+	public MapFace(LevelState level, UnitControl[][] map, int index, float angle) {
+		this.level = level;
+		this.index = index;
 		this.map = map;
+		this.angle = angle;
+		setLocalRotation(new Quaternion().fromAngleAxis(angle, Vector3f.UNIT_Y));
 	}
 	
+	public LevelState getLevel() {
+		return level;
+	}
+	public int getIndex() {
+		return index;
+	}
 	public UnitControl[][] getMap() {
 		return map;
+	}
+	public float getAngle() {
+		return angle;
+	}
+	
+	public UnitControl getUnit(int x, int y) {
+		return map[y][x];
+	}
+	public MapFace getAdjacentFace(int direction) {
+		int i = index+toIndexDirection(direction);
+		int l = level.getFaces().length;
+		if (i < 0) i = l-1;
+		else if (i >= l) i = 0;
+		return level.getFace(i);
+	}
+	private int toIndexDirection(int direction) {
+		// only supporting horizontally adjacent faces for now
+		switch (direction) {
+			case UnitControl.DL:
+			case UnitControl.L: return 1;
+			case UnitControl.DR:
+			case UnitControl.R: return -1;
+			default:
+				throw new IllegalArgumentException("Direction must be horizontal!");
+		}
+	}
+	
+	public static UnitControl getAdjacentUnit(UnitControl unit, int direction) {
+		//assert UnitControl.isOrthogonal(direction);
+		//System.out.println("--- starting ---");
+		Index3i index = new Index3i(unit.getIndex());
+		//System.out.println("  base index: "+index);
+		LevelState level = unit.getLevel();
+		MapFace face = level.getFace(index.z);
+		Index3i d = UnitControl.generateDirectional(direction);
+		index.x += d.x;
+		index.y += d.y;
+		//System.out.println("  moved index: "+index);
+		if (index.y < 0 || index.y >= face.getMap().length) {
+			return null;
+		}
+		if (index.x < 0) {
+			face = face.getAdjacentFace(direction);
+			index.x = face.getMap()[0].length-1;
+			//System.out.println("    wrap left to "+face.getIndex());
+		}
+		else if (index.x >= face.getMap()[0].length) {
+			face = face.getAdjacentFace(direction);
+			index.x = 0;
+			//System.out.println("   wrap right to "+face.getIndex());
+		}
+		//System.out.println("  final index: "+index);
+		return face.getUnit(index.x, index.y);
 	}
 	
 }

@@ -6,6 +6,7 @@ package codex.goldrunner.units;
 
 import codex.goldrunner.game.LevelState;
 import codex.goldrunner.runners.Traveller;
+import codex.goldrunner.util.Index3i;
 import com.jme3.asset.AssetManager;
 import com.jme3.scene.Spatial;
 import java.awt.Point;
@@ -21,7 +22,7 @@ public class ConcreteControl extends UnitControl {
 	//Right-click a local variable to encapsulate it with getters and setters.
 	
 	public ConcreteControl() {}
-	public ConcreteControl(LevelState level, Point index) {
+	public ConcreteControl(LevelState level, Index3i index) {
 		super(level, index);
 	}
 	
@@ -53,8 +54,7 @@ public class ConcreteControl extends UnitControl {
 		else return assets.loadModel("Models/units/concrete2.j3o");
 	}
 	@Override
-	public UnitControl loadControl(String type, LevelState level,
-			Point index) {
+	public UnitControl loadControl(String type, LevelState level, Index3i index) {
 		return new ConcreteControl(level, index);
 	}
 	

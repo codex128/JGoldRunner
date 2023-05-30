@@ -13,6 +13,7 @@ import codex.goldrunner.runners.*;
 import codex.goldrunner.units.UnitControl;
 import codex.goldrunner.units.UnitLoader;
 import codex.goldrunner.util.IncompatibilityException;
+import codex.goldrunner.util.Index3i;
 import codex.goldrunner.util.JoystickEventListener;
 import codex.goldrunner.util.TrackerLight;
 import codex.jmeutil.listen.Listenable;
@@ -20,6 +21,7 @@ import codex.jmeutil.Timer;
 import codex.jmeutil.TimerListener;
 import codex.jmeutil.Trash;
 import codex.j3map.J3map;
+import codex.jmeutil.Motion;
 import codex.jmeutil.character.OrbitalCamera;
 import com.jme3.app.Application;
 import com.jme3.app.SimpleApplication;
@@ -34,19 +36,15 @@ import com.jme3.input.event.JoyAxisEvent;
 import com.jme3.input.event.JoyButtonEvent;
 import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
-import com.jme3.material.Material;
-import com.jme3.material.RenderState;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
-import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
-import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
-import com.jme3.scene.shape.Quad;
 import com.jme3.texture.Texture;
 import com.jme3.util.SkyFactory;
 import com.simsilica.lemur.Container;
+import com.simsilica.lemur.GuiGlobals;
 import java.awt.Point;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -73,7 +71,7 @@ public class LevelState extends BaseAppState implements ActionListener,
 	Node background = new Node("background scene");
 	TrackerLight[] trackers;
 	ConcurrentLinkedQueue<LevelListener> listeners = new ConcurrentLinkedQueue<>();
-	UnitControl[][] units;
+	MapFace[] faces;
 	HeroControl hero;
 	LinkedList<RunnerControl> runners = new LinkedList<>();
 	LinkedList<EnemyControl> enemies = new LinkedList<>();
@@ -128,10 +126,12 @@ public class LevelState extends BaseAppState implements ActionListener,
 		gui.attachChild(hud);
 		
 		// camera
-		chase = new OrbitalCamera(app.getCamera());
+		chase = new OrbitalCamera(app.getCamera(), GuiGlobals.getInstance().getInputMapper());
+		GuiGlobals.getInstance().getInputMapper().activateGroup(OrbitalCamera.INPUT_GROUP);
 		chase.getDistanceDomain().set(null, null);
 		chase.setDistance(18f);
 		//chase.setHorizontalAngle(FastMath.HALF_PI);
+		chase.setMotion(Motion.LERP);
 		chase.setLocationOffset(new Vector3f(0, 1, 0));
 		endtimer.addListener(this);
 		
@@ -184,13 +184,8 @@ public class LevelState extends BaseAppState implements ActionListener,
     public void update(float tpf) {
 		if (!hero.isAlive() && hero.isEnabled() && !endtimer.isRunning()) {
 			endtimer.start();
-			//hero.pause(true);
 			for (RunnerControl runner : runners) runner.pause(true);
 			notifyListeners(l -> l.onHeroDeath(this));
-//			DynamicAnimControl dac = hero.createRagdoll();
-//			getState(BulletAppState.class).getPhysicsSpace().add(dac);
-//			getState(RagdollPhysicsState.class).addDacRagdoll(dac);
-//			dac.getTorsoLink().getRigidBody().applyCentralForce(new Vector3f(1, 1, 0));
 		}
 		endtimer.update(tpf);
 		if (endtimer.isRunning()) return;
@@ -204,19 +199,17 @@ public class LevelState extends BaseAppState implements ActionListener,
 			});
 		}
 		if (allgoldcollected && hero.getOccupied().goal()) {
+			System.out.println("victory");
 			notifyListeners(l -> l.onVictory(this));
 		}
 		for (EnemyControl enemy : enemies) {			
 			if (!enemy.isAlive()) {
 				UnitControl spawn = enemy.getSpawnableUnit();
-				//level.detachChild(enemy.getSpatial());
-				//trash.add(enemy, runners);
 				if (spawn != null) {
 					enemy.getSpatial().setLocalTranslation(spawn.getSpatial()
 							.getLocalTranslation().add(0, 10f, 0));
 					enemy.warp(spawn, "fall");
 					enemy.setAlive(true);
-					//airdrop.add(enemy);
 				}
 			}
 		}
@@ -228,6 +221,9 @@ public class LevelState extends BaseAppState implements ActionListener,
 		client.onRestart(this);
 	}
 	public void destroy() {
+		if (faces != null) for (MapFace face : faces) {
+			face.detachAllChildren();
+		}
 		level.detachAllChildren();
 		background.detachAllChildren();
 		gui.detachAllChildren();
@@ -240,7 +236,7 @@ public class LevelState extends BaseAppState implements ActionListener,
 		gold = 0;
 		allgoldcollected = false;
 		client = null;
-		units = null;
+		faces = null;
 		if (hero != null) {
 			hero.getSpatial().removeControl(chase);
 			getApplication().getInputManager().removeListener(hero);
@@ -260,7 +256,15 @@ public class LevelState extends BaseAppState implements ActionListener,
 		is3D = this.data.getSource().getBoolean("3D", false);
 		final int topmargin = 6;
 		loadMap(topmargin);
-		loadTopMargin(topmargin);
+		boolean escapable = false;
+		for (int i = 0; i < faces.length; i++) {
+			if (loadTopMargin(i, topmargin)) {
+				escapable = true;
+			}
+		}
+		if (!escapable) {
+			notifyListeners(l -> l.onError(this, "The level cannot be escaped from!"));
+		}
 		if (hero == null) {
 			notifyListeners(l -> l.onError(this, "No Hero found in Level!"));
 		}
@@ -296,36 +300,46 @@ public class LevelState extends BaseAppState implements ActionListener,
 	private void loadMap(int topmargin) {		
 		J3map cipher = data.getSource().getJ3map("cipher");
 		if (cipher == null) cipher = data.getSource();
-		String[] map = data.getSource().getStringArray("map");
-		if (map == null) {
-			throw new IllegalStateException("Level data missing map!");
-		}
-		units = new UnitControl[map.length+topmargin][map[0].length()];
-		for (int i = 0; i < map.length; i++) {
-			for (int j = 0; j < map[i].length(); j++) {
-				String key = cipher.getString(""+map[i].charAt(j));
-				loadUnit(key, j, i+topmargin);
+		faces = new MapFace[is3DFormat() ? 4 : 1];
+		for (int f = 0; f < faces.length; f++) {
+			String[] map = data.getSource().getStringArray("map"+(f > 0 ? f : ""));
+			if (map == null) {
+				throw new IllegalStateException("Level data missing map"+(f > 0 ? f : "")+"!");
 			}
+			faces[f] = new MapFace(this, new UnitControl[map.length+topmargin][map[0].length()], f, getFaceAngle(f));
+			for (int i = 0; i < map.length; i++) {
+				for (int j = 0; j < map[i].length(); j++) {
+					String key = cipher.getString(""+map[i].charAt(j));
+					loadUnit(key, f, j, i+topmargin);
+				}
+			}
+			level.attachChild(faces[f]);
+		}
+		if (is3DFormat()) {
+			faces[1].setLocalTranslation(-UNIT_SIZE, 0f, -(faces[1].getMap()[0].length)*UNIT_SIZE);
+			faces[2].setLocalTranslation((faces[0].getMap()[0].length-1)*UNIT_SIZE, 0f, -(faces[1].getMap()[0].length+1)*UNIT_SIZE);
+			faces[3].setLocalTranslation(faces[0].getMap()[0].length*UNIT_SIZE, 0f, -UNIT_SIZE);
 		}
 	}
-	private void loadUnit(String key, int x, int y) {
+	private void loadUnit(String key, int face, int x, int y) {
 		AssetManager assets = getApplication().getAssetManager();
 		UnitLoader loader = getUnitLoader(key);
 		Spatial spatial = loader.loadSpatial(key, false, assets);
-		UnitControl unit = loader.loadControl(key, this, new Point(x, y));
+		UnitControl unit = loader.loadControl(key, this, new Index3i(x, y, face));
 		spatial.addControl(unit);
 		Vector3f location = getMapLocation(x, y, 0f);
 		spatial.setLocalTranslation(location);
-		level.attachChild(spatial);
-		units[y][x] = unit;
+		faces[face].attachChild(spatial);
+		faces[face].getMap()[y][x] = unit;
 		// load runner
 		RunnerControl person = loader.spawn(key, false, unit, assets);
 		if (person != null) {
 			level.attachChild(person.getSpatial());
 			person.getSpatial().setLocalTranslation(location);
-			if (person instanceof HeroControl) {
+			if (hero == null && person instanceof HeroControl) {
 				hero = (HeroControl)person;
 				hero.getSpatial().addControl(chase);
+				hero.setCameraController(chase);
 			}
 			else if (person instanceof EnemyControl) {
 				enemies.addLast((EnemyControl)person);
@@ -340,113 +354,123 @@ public class LevelState extends BaseAppState implements ActionListener,
 			}
 		}
 	}
-	private void loadTopMargin(int margin) {		
+	private boolean loadTopMargin(int face, int margin) {		
 		boolean escapable = false;
-		for (int j = 0; j < units[0].length; j++) {
-			if (units[margin][j].escapable()) {
-				loadColumn("escape-ladder", j, 1, margin);
+		for (int j = 0; j < faces[face].getMap()[0].length; j++) {
+			if (faces[face].getMap()[margin][j].escapable()) {
+				loadColumn("escape-ladder", face, j, 1, margin);
 				escapable = true;
 			}
 			else {
-				loadColumn(null, j, 1, margin);
+				loadColumn(null, face, j, 1, margin);
 			}
-			loadUnit("goal", j, 0);
+			loadUnit("goal", face, j, 0);
 		}
-		if (!escapable) {
-			notifyListeners(l -> l.onError(this, "The level cannot be escaped from!"));
-		}
+		return escapable;
 	}
-	private void loadSection(String key, Point start, Point end) {
-		for (int i = start.y; i > 0 && i < end.y && i < units.length; i++) {
-			for (int j = start.x; j > 0 && j < end.x && j < units[i].length; j++) {
-				loadUnit(key, j, i);
+	private void loadSection(String key, int face, Point start, Point end) {
+		for (int i = start.y; i > 0 && i < end.y && i < faces[face].getMap().length; i++) {
+			for (int j = start.x; j > 0 && j < end.x && j < faces[face].getMap()[i].length; j++) {
+				loadUnit(key, face, j, i);
 			}
 		}
 	}
-	private void loadColumn(String key, int column, int start, int end) {
-		assert column >= 0 && column < units[0].length;
-		for (int i = Math.max(start, 0); (end < 0 | i < end) && i < units.length; i++) {
-			loadUnit(key, column, i);
+	private void loadColumn(String key, int face, int column, int start, int end) {
+		assert column >= 0 && column < faces[face].getMap()[0].length;
+		for (int i = Math.max(start, 0); (end < 0 | i < end) && i < faces[face].getMap().length; i++) {
+			loadUnit(key, face, column, i);
 		}
 	}
 	private void loadBorderConcrete(int thickness, int height) {
-		UnitLoader loader = loaders.get("concrete");
-		AssetManager assets = getApplication().getAssetManager();
-		if (loader != null) {
-			for (int j = 0; j < thickness; j++) {
-				for (int i = -(height-1)+j+1; i <= units.length+thickness-1; i++) {
-					Spatial c1 = loader.loadSpatial("concrete", false, assets);
-					Spatial c2 = loader.loadSpatial("concrete", false, assets);
-					c1.setLocalTranslation(getMapLocation(-1-j, i, 0f));
-					c2.setLocalTranslation(getMapLocation(units[0].length+j, i, 0f));
-					level.attachChild(c1);
-					level.attachChild(c2);
-				}
-			}
-			for (int i = 0; i < units[0].length; i++) {
-				for (int j = 0; j < thickness; j++) {
-					Spatial c2 = loader.loadSpatial("concrete", false, assets);
-					c2.setLocalTranslation(getMapLocation(i, units.length+j, 0f));
-					level.attachChild(c2);
-				}
-			}
-		}
+//		UnitLoader loader = loaders.get("concrete");
+//		AssetManager assets = getApplication().getAssetManager();
+//		if (loader != null) {
+//			for (int j = 0; j < thickness; j++) {
+//				for (int i = -(height-1)+j+1; i <= units.length+thickness-1; i++) {
+//					Spatial c1 = loader.loadSpatial("concrete", false, assets);
+//					Spatial c2 = loader.loadSpatial("concrete", false, assets);
+//					c1.setLocalTranslation(getMapLocation(-1-j, i, 0f));
+//					c2.setLocalTranslation(getMapLocation(units[0].length+j, i, 0f));
+//					level.attachChild(c1);
+//					level.attachChild(c2);
+//				}
+//			}
+//			for (int i = 0; i < units[0].length; i++) {
+//				for (int j = 0; j < thickness; j++) {
+//					Spatial c2 = loader.loadSpatial("concrete", false, assets);
+//					c2.setLocalTranslation(getMapLocation(i, units.length+j, 0f));
+//					level.attachChild(c2);
+//				}
+//			}
+//		}
 	}
 	private void createLevelBackground(int height, int thickness, int topmargin) {
-		AssetManager assets = getApplication().getAssetManager();
-		J3map bg = data.getSource().getJ3map("background");
-		if (bg == null || true) {
-			// texturing is sketchy
-			Quad q = new Quad(units[0].length, units.length);
-			Texture tex = assets.loadTexture("Textures/Terrain/BrickWall/BrickWall.jpg");
-			Material mat = new Material(assets, "Common/MatDefs/Light/Lighting.j3md");
-			tex.setWrap(Texture.WrapMode.Repeat);
-			mat.setTexture("DiffuseMap", tex);
-			q.scaleTextureCoordinates(new Vector2f(1/units[0].length, 1/units.length));
-			Geometry quad = new Geometry("quad", q);
-			quad.setMaterial(mat);
-			quad.setLocalTranslation(-.5f, -units.length-.5f, -.5f);
-			level.attachChild(quad);
-		}
-		else {
-			bg.forEachType(BackgroundElement.class, (property) -> {
-				Spatial spatial = assets.loadModel(property.getModel());
-				spatial.setLocalTranslation(getMapLocation(
-						property.getIndex().x,
-						property.getIndex().y+topmargin,
-						UNIT_SIZE));
-				Material m = new Material(assets, "Common/MatDefs/Light/Lighting.j3md");
-				m.setTexture("DiffuseMap", assets.loadTexture("Textures/Room Texture.png"));
-				//spatial.setMaterial(m);
-				background.attachChild(spatial);
-			});
-		}
+//		AssetManager assets = getApplication().getAssetManager();
+//		J3map bg = data.getSource().getJ3map("background");
+//		if (bg == null || true) {
+//			// texturing is sketchy
+//			Quad q = new Quad(units[0].length, units.length);
+//			Texture tex = assets.loadTexture("Textures/Terrain/BrickWall/BrickWall.jpg");
+//			Material mat = new Material(assets, "Common/MatDefs/Light/Lighting.j3md");
+//			tex.setWrap(Texture.WrapMode.Repeat);
+//			mat.setTexture("DiffuseMap", tex);
+//			q.scaleTextureCoordinates(new Vector2f(1/units[0].length, 1/units.length));
+//			Geometry quad = new Geometry("quad", q);
+//			quad.setMaterial(mat);
+//			quad.setLocalTranslation(-.5f, -units.length-.5f, -.5f);
+//			level.attachChild(quad);
+//		}
+//		else {
+//			bg.forEachType(BackgroundElement.class, (property) -> {
+//				Spatial spatial = assets.loadModel(property.getModel());
+//				spatial.setLocalTranslation(getMapLocation(
+//						property.getIndex().x,
+//						property.getIndex().y+topmargin,
+//						UNIT_SIZE));
+//				Material m = new Material(assets, "Common/MatDefs/Light/Lighting.j3md");
+//				m.setTexture("DiffuseMap", assets.loadTexture("Textures/Room Texture.png"));
+//				//spatial.setMaterial(m);
+//				background.attachChild(spatial);
+//			});
+//		}
 	}
 	private void createWorldBackground(float depth) {
-		AssetManager assets = getApplication().getAssetManager();
-		final float size = 4f;
-		final float distance = 40f;
-		Spatial front = assets.loadModel("Models/cityscape.j3o");
-		front.setLocalTranslation(getMapLocation(
-				units[units.length-1].length/2, units.length, -distance));
-		front.setLocalScale(size);
-		Material fm = new Material(assets, "Common/MatDefs/Light/Lighting.j3md");
-		fm.setBoolean("UseMaterialColors", true);
-		fm.setColor("Diffuse", new ColorRGBA(.1f, .1f, .1f, 1f));
-		front.setMaterial(fm);
-		background.attachChild(front);
-		Spatial back = front.clone(false);
-		back.move(5f, 5f, -20f);
-		back.setLocalScale(-size*1.2f, size*1.2f, size*1.2f);
-		Material bm = fm.clone();
-		bm.setColor("Diffuse", new ColorRGBA(0f, 0f, 0f, 1f));
-		bm.getAdditionalRenderState().setFaceCullMode(RenderState.FaceCullMode.Front);
-		back.setMaterial(bm);
-		background.attachChild(back);
+//		AssetManager assets = getApplication().getAssetManager();
+//		final float size = 4f;
+//		final float distance = 40f;
+//		Spatial front = assets.loadModel("Models/cityscape.j3o");
+//		front.setLocalTranslation(getMapLocation(
+//				units[units.length-1].length/2, units.length, -distance));
+//		front.setLocalScale(size);
+//		Material fm = new Material(assets, "Common/MatDefs/Light/Lighting.j3md");
+//		fm.setBoolean("UseMaterialColors", true);
+//		fm.setColor("Diffuse", new ColorRGBA(.1f, .1f, .1f, 1f));
+//		front.setMaterial(fm);
+//		background.attachChild(front);
+//		Spatial back = front.clone(false);
+//		back.move(5f, 5f, -20f);
+//		back.setLocalScale(-size*1.2f, size*1.2f, size*1.2f);
+//		Material bm = fm.clone();
+//		bm.setColor("Diffuse", new ColorRGBA(0f, 0f, 0f, 1f));
+//		bm.getAdditionalRenderState().setFaceCullMode(RenderState.FaceCullMode.Front);
+//		back.setMaterial(bm);
+//		background.attachChild(back);
+	}
+	private float getFaceAngle(int index) {
+		switch (index) {
+			case 0: return 0f;
+			case 1: return -FastMath.PI*0.5f;
+			case 2: return FastMath.PI;
+			case 3: return FastMath.PI*0.5f;
+			default: return 0f;
+		}
 	}
 	
 	public LevelData getLevelData() {
 		return data;
+	}
+	public boolean is3DFormat() {
+		return is3D;
 	}
 	private Vector3f getMapLocation(float x, float y, float z) {
 		return new Vector3f(x, -y, 0).multLocal(UNIT_SIZE).setZ(z);
@@ -475,8 +499,20 @@ public class LevelState extends BaseAppState implements ActionListener,
 		return loaders.get(type);
 	}
 	
-	public UnitControl[][] getUnits() {
-		return units;
+	public MapFace[] getFaces() {
+		return faces;
+	}
+	public MapFace getFace(int face) {
+		return faces[face];
+	}
+	public UnitControl[][] getUnitsForFace(int face) {
+		return faces[face].getMap();
+	}
+	public UnitControl getUnit(Index3i index) {
+		return faces[index.z].getUnit(index.x, index.y);
+	}
+	public UnitControl getUnit(int f, int x, int y) {
+		return faces[f].getUnit(x, y);
 	}
 	
 	@Override

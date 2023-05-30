@@ -6,6 +6,7 @@ package codex.goldrunner.units;
 
 import codex.goldrunner.game.LevelState;
 import codex.goldrunner.runners.Traveller;
+import codex.goldrunner.util.Index3i;
 import com.jme3.asset.AssetManager;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
@@ -22,7 +23,7 @@ import java.awt.Point;
 public class PlatformControl extends UnitControl {
 	
 	public PlatformControl() {}
-	public PlatformControl(LevelState level, Point index) {
+	public PlatformControl(LevelState level, Index3i index) {
 		super(level, index);
 	}
 	
@@ -56,8 +57,7 @@ public class PlatformControl extends UnitControl {
 		}
 	}
 	@Override
-	public UnitControl loadControl(String type, LevelState level,
-			Point index) {
+	public UnitControl loadControl(String type, LevelState level, Index3i index) {
 		return new PlatformControl(level, index);
 	}
 	

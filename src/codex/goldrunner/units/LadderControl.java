@@ -6,10 +6,11 @@
 package codex.goldrunner.units;
 
 import codex.goldrunner.game.LevelState;
+import codex.goldrunner.game.MapFace;
 import codex.goldrunner.runners.Traveller;
+import codex.goldrunner.util.Index3i;
 import com.jme3.asset.AssetManager;
 import com.jme3.scene.Spatial;
-import java.awt.Point;
 
 /**
  *
@@ -18,13 +19,13 @@ import java.awt.Point;
 public class LadderControl extends UnitControl {
 	
 	public LadderControl() {}
-	public LadderControl(LevelState level, Point index) {
+	public LadderControl(LevelState level, Index3i index) {
 		super(level, index);
 	}
 	
 	@Override
 	public UnitControl getUp() {
-		return getUnitAtIndex(index.x, index.y-1);
+		return MapFace.getAdjacentUnit(this, U);
 	}
 	@Override
 	public boolean grabbable() {
@@ -55,8 +56,7 @@ public class LadderControl extends UnitControl {
 		else return assets.loadModel("Models/units/ladder.j3o");
 	}
 	@Override
-	public UnitControl loadControl(String type, LevelState level,
-			Point index) {
+	public UnitControl loadControl(String type, LevelState level, Index3i index) {
 		return new LadderControl(level, index);
 	}
 	

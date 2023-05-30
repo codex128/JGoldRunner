@@ -1,7 +1,7 @@
 /*
  * The MIT License
  *
- * Copyright 2022 gary.
+ * Copyright 2023 gary.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,40 +21,42 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package codex.goldrunner.items;
-
-import codex.goldrunner.game.LevelState;
-import codex.goldrunner.units.UnitControl;
-import codex.goldrunner.units.UnitLoader;
-import codex.goldrunner.util.Index3i;
-import com.jme3.asset.AssetManager;
-import com.jme3.scene.Node;
-import com.jme3.scene.Spatial;
+package codex.goldrunner.util;
 
 /**
- * Controls guns.
- * 
- * Does not have anything to do with the political thingy.
- * 
+ *
  * @author gary
  */
-public class GunControl extends ItemControl implements UnitLoader {
-
-	@Override
-	public String[] types() {
-		return new String[]{"gun"};
+public class Index3i {
+	
+	public int x, y, z;
+	
+	public Index3i() {
+		x = y = z = 0;
 	}
-	@Override
-	public Spatial loadSpatial(String type, boolean editor, AssetManager assets) {
-		return new Node();
+	public Index3i(Index3i index) {
+		set(index);
 	}
-	@Override
-	public UnitControl loadControl(String type, LevelState level, Index3i index) {
-		return new UnitControl(level, index) {};
+	public Index3i(int x, int y, int z) {
+		set(x, y, z);
 	}
+	
+	public Index3i set(Index3i index) {
+		x = index.x;
+		y = index.y;
+		z = index.z;
+		return this;
+	}
+	public Index3i set(int x, int y, int z) {
+		this.x = x;
+		this.y = y;
+		this.z = z;
+		return this;
+	}
+	
 	@Override
-	public ItemControl createItem(String type, ItemCarrier wrapper, AssetManager assets) {
-		return new GunControl();
+	public String toString() {
+		return "("+x+", "+y+", "+z+")";
 	}
 	
 }

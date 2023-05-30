@@ -7,13 +7,13 @@ package codex.goldrunner.items;
 import codex.goldrunner.game.LevelState;
 import codex.goldrunner.units.UnitControl;
 import codex.goldrunner.units.UnitLoader;
+import codex.goldrunner.util.Index3i;
 import com.jme3.anim.AnimComposer;
 import com.jme3.asset.AssetManager;
 import com.jme3.light.AmbientLight;
 import com.jme3.math.ColorRGBA;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
-import java.awt.Point;
 
 /**
  *
@@ -66,7 +66,7 @@ public class GoldControl extends ItemControl implements UnitLoader {
 		return new Node();
 	}
 	@Override
-	public UnitControl loadControl(String type, LevelState level, Point index) {
+	public UnitControl loadControl(String type, LevelState level, Index3i index) {
 		return new UnitControl(level, index) {};
 	}
 	

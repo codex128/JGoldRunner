@@ -7,6 +7,7 @@ package codex.goldrunner.units;
 import codex.goldrunner.game.LevelListener;
 import codex.goldrunner.game.LevelState;
 import codex.goldrunner.runners.Traveller;
+import codex.goldrunner.util.Index3i;
 import codex.jmeutil.Timer;
 import codex.jmeutil.TimerListener;
 import com.jme3.asset.AssetManager;
@@ -29,7 +30,7 @@ public class EscapeLadderControl extends LadderControl implements LevelListener,
 	
 	
 	public EscapeLadderControl() {}
-	public EscapeLadderControl(LevelState level, Point index) {
+	public EscapeLadderControl(LevelState level, Index3i index) {
 		super(level, index);
 		timer.setCycleMode(Timer.CycleMode.ONCE);
 	}
@@ -126,8 +127,7 @@ public class EscapeLadderControl extends LadderControl implements LevelListener,
 		}
 	}	
 	@Override
-	public UnitControl loadControl(String type, LevelState level,
-			Point index) {
+	public UnitControl loadControl(String type, LevelState level, Index3i index) {
 		EscapeLadderControl ladder = new EscapeLadderControl(level, index);
 		level.addListener(ladder);
 		AssetManager assets = level.getApplication().getAssetManager();

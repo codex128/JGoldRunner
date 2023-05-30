@@ -6,6 +6,7 @@
 package codex.goldrunner.units;
 
 import codex.goldrunner.game.LevelState;
+import codex.goldrunner.game.MapFace;
 import codex.goldrunner.items.ItemControl;
 import codex.goldrunner.runners.Traveller;
 import com.jme3.asset.AssetManager;
@@ -20,9 +21,9 @@ import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.AbstractControl;
 import com.jme3.scene.control.Control;
-import java.awt.Point;
 import java.io.IOException;
 import codex.goldrunner.items.ItemCarrier;
+import codex.goldrunner.util.Index3i;
 import com.jme3.anim.AnimComposer;
 
 /**
@@ -36,14 +37,19 @@ public abstract class UnitControl extends AbstractControl
 			DR = 4, DL = 5;
 	public static final int FORE = 0, MID = 1, BACK = 2;
 	LevelState level;
-	Point index;
+	Index3i index;
 	ItemControl item;
 	
 	/**
 	 * For internal use only.
 	 */
 	public UnitControl() {}
-	public UnitControl(LevelState level, Point index) {
+	/**
+	 * Initialize a new UnitControl.
+	 * @param level level this unit is part of
+	 * @param index index of the unit: x and y define position of face, z defines face.
+	 */
+	public UnitControl(LevelState level, Index3i index) {
 		this.level = level;
 		this.index = index;
 		initialize();
@@ -113,30 +119,27 @@ public abstract class UnitControl extends AbstractControl
 		return null;
 	}
 	public UnitControl getRight() {
-		return getRelativeUnit(1, 0);
+		return MapFace.getAdjacentUnit(this, R);
 	}
 	public UnitControl getDown() {
-		return getRelativeUnit(0, 1);
+		return MapFace.getAdjacentUnit(this, D);
 	}
 	public UnitControl getLeft() {
-		return getRelativeUnit(-1, 0);
+		return MapFace.getAdjacentUnit(this, L);
 	}
 	public UnitControl getDownRight() {
-		return getRelativeUnit(1, 1);
+		return MapFace.getAdjacentUnit(this, DR);
 	}
 	public UnitControl getDownLeft() {
-		return getRelativeUnit(-1, 1);
+		return MapFace.getAdjacentUnit(this, DL);
 	}
 	
 	public boolean isAdjacentTo(UnitControl unit) {
-		for (int i = 0; i < L+1; i++) {
-			UnitControl a = getAdjacent(i);
+		for (int i = 0; i <= L; i++) {
+			UnitControl a = MapFace.getAdjacentUnit(this, i);
 			if (a != null && a == unit) return true;
 		}
 		return false;
-	}
-	public boolean isAdjacentToDiagonally(UnitControl unit) {
-		return getAdjacent(DR) == unit || getAdjacent(DL) == unit;
 	}
 	public int getDirectionTo(UnitControl unit) {
 		for (int i = 0; i < DL+1; i++) {
@@ -150,13 +153,14 @@ public abstract class UnitControl extends AbstractControl
 		}
 		return NONE;
 	}
-	public UnitControl getUnitAtIndex(int x, int y) {
-		if (y < 0 || y >= level.getUnits().length ||
-				x < 0 || x >= level.getUnits()[y].length) return null;
-		else return level.getUnits()[y][x];
+	public UnitControl getUnitAtIndex(int face, int x, int y) {
+		if (face < 0 || face >= level.getFaces().length ||
+				y < 0 || y >= level.getUnitsForFace(face).length ||
+				x < 0 || x >= level.getUnitsForFace(face)[y].length) return null;
+		else return level.getUnitsForFace(face)[y][x];
 	}
 	public UnitControl getRelativeUnit(int x, int y) {
-		return getUnitAtIndex(index.x+x, index.y+y);
+		return getUnitAtIndex(index.z, index.x+x, index.y+y);
 	}
 	
 	public boolean enter(Traveller travel, boolean force) {
@@ -168,7 +172,7 @@ public abstract class UnitControl extends AbstractControl
 		return true;
 	}
 	public boolean inBounds(Vector3f vec) {
-		Vector3f loc = spatial.getLocalTranslation();
+		Vector3f loc = spatial.getWorldTranslation();
 		float rad = LevelState.UNIT_SIZE/2;
 		return vec.x > loc.x-rad && vec.x < loc.x+rad &&
 				vec.y > loc.y-rad && vec.y < loc.y+rad &&
@@ -231,7 +235,7 @@ public abstract class UnitControl extends AbstractControl
 		if (!(spatial instanceof Node)) return null;
 		else return (Node)spatial;
 	}	
-	public Point getIndex() {
+	public Index3i getIndex() {
 		return index;
 	}
 	public LevelState getLevel() {
@@ -245,6 +249,9 @@ public abstract class UnitControl extends AbstractControl
 			default: return null;
 		}
 	}
+	public static boolean isOrthogonal(int direction) {
+		return isHorizontal(direction) || isVerticle(direction);
+	}
 	public static boolean isHorizontal(int direction) {
 		return direction == R || direction == L;
 	}
@@ -254,14 +261,6 @@ public abstract class UnitControl extends AbstractControl
 	public static boolean isDiagonal(int direction) {
 		return direction == DR || direction == DL;
 	}
-	public static float getZIndexRatio(int zindex) {
-		switch (zindex) {
-			case FORE: return 0;
-			case MID: return .1f;
-			case BACK: return -1;
-			default: throw new IllegalArgumentException("No such z index");
-		}
-	}
 	public static Integer reverseDirection(int direction) {
 		switch (direction) {
 			case U: return D;
@@ -269,6 +268,18 @@ public abstract class UnitControl extends AbstractControl
 			case D: return U;
 			case L: return R;
 			default: return null;
+		}
+	}
+	public static Index3i generateDirectional(int direction) {
+		switch (direction) {
+			case U: return new Index3i(0, -1, 0);
+			case R: return new Index3i(1, 0, 0);
+			case DR: return new Index3i(1, 1, 0);
+			case D: return new Index3i(0, 1, 0);
+			case DL: return new Index3i(-1, 1, 0);
+			case L: return new Index3i(-1, 0, 0);
+			default:
+				throw new IllegalArgumentException("Invalid direction integer "+direction+"!");
 		}
 	}
 	public static int[] getHorizontalDirections() {
@@ -293,8 +304,7 @@ public abstract class UnitControl extends AbstractControl
 		return new Node();
 	}
 	@Override
-	public UnitControl loadControl(String type, LevelState level,
-			Point index) {
+	public UnitControl loadControl(String type, LevelState level, Index3i index) {
 		return new UnitControl(level, index) {};
 	}
 	

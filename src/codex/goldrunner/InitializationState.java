@@ -26,7 +26,6 @@ import com.jme3.app.Application;
 import com.jme3.app.SimpleApplication;
 import com.jme3.app.state.AppState;
 import com.jme3.app.state.BaseAppState;
-import com.jme3.app.state.ScreenshotAppState;
 import com.jme3.asset.plugins.FileLocator;
 import com.jme3.audio.AudioData.DataType;
 import com.jme3.audio.AudioNode;

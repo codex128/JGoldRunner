@@ -5,8 +5,7 @@
 package codex.goldrunner.units;
 
 import codex.goldrunner.game.LevelState;
-import com.jme3.asset.AssetManager;
-import com.jme3.scene.Spatial;
+import codex.goldrunner.util.Index3i;
 import java.awt.Point;
 
 /**
@@ -17,7 +16,7 @@ public class GoalControl extends UnitControl {
 	
 	
 	public GoalControl() {}
-	public GoalControl(LevelState level, Point index) {
+	public GoalControl(LevelState level, Index3i index) {
 		super(level, index);
 	}
 	
@@ -31,8 +30,7 @@ public class GoalControl extends UnitControl {
 		return new String[]{"goal"};
 	}
 	@Override
-	public UnitControl loadControl(String type, LevelState level,
-			Point index) {
+	public UnitControl loadControl(String type, LevelState level, Index3i index) {
 		return new GoalControl(level, index);
 	}
 	
