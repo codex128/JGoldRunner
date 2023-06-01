@@ -129,7 +129,7 @@ public class MapFace extends Node {
 		boolean down = index.y >= face.getMap().length;
 		boolean left = index.x < 0;
 		if (direction == UnitControl.IN) {
-			if (index.y == level.getFlatFace().getVerticalIndex()) {
+			if (level.is3DFormat() && index.y <= level.getFlatFace().getVerticalIndex()) {
 				face = level.getFace(LevelState.UP);
 				if (face == null) return null;
 				switch (index.z) {
