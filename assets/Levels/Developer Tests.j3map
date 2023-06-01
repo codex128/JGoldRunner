@@ -1,4 +1,4 @@
-name: "State of Terror";
+name: "Developer Tests";
 ex_levels: {
     version: 2;
     name: "Test 3D Format";
