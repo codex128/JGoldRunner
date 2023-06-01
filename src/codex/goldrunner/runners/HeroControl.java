@@ -28,6 +28,7 @@ import com.jme3.input.event.JoyAxisEvent;
 import com.jme3.input.event.JoyButtonEvent;
 import com.jme3.light.AmbientLight;
 import com.jme3.math.ColorRGBA;
+import com.jme3.math.FastMath;
 import com.jme3.math.Vector3f;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
@@ -63,6 +64,7 @@ public class HeroControl extends RunnerControl implements AnalogListener,
 //	DynamicAnimControl dac;
 	AudioNode steps;
 	OrbitalCamera camera;
+	int movementFace;
 	
 	
 	/**
@@ -121,7 +123,6 @@ public class HeroControl extends RunnerControl implements AnalogListener,
 	
 	@Override
 	protected void controlUpdate(float tpf) {
-//		if (dac != null) return;
 		super.controlUpdate(tpf);
 		if (UnitControl.isHorizontal(getLastDirection())) {
 			joystickMovementY();
@@ -142,9 +143,28 @@ public class HeroControl extends RunnerControl implements AnalogListener,
 		else if ((energy += energyregen) > 100) {
 			energy = 100;
 		}
-		if (camera != null) {
-			camera.setHorizontalAngle(-getCurrentFace().getAngle());
-		}
+		if (camera == null) return;
+//		Index3i i = occupy.getLast().getIndex();
+//		if (i.z == LevelState.UP) {
+//			Float angle = null;
+//			if (i.y == 0) {
+//				angle = FastMath.PI;
+//			}
+//			else if (i.y == getCurrentFace().getMap().length-1) {
+//				angle = 0f;
+//			}
+//			if (i.x == 0) {
+//				if (angle == null) angle = FastMath.HALF_PI;
+//				else angle += (FastMath.HALF_PI-angle)/2;
+//			}
+//			else if (i.x == getCurrentFace().getMap()[0].length-1) {
+//				if (angle == null) angle = FastMath.HALF_PI*3;
+//				else angle += (FastMath.HALF_PI*3-angle)/2;
+//			}
+//			if (angle != null) {
+//				camera.setHorizontalAngle(angle);
+//			}
+//		}
 	}
 	private void joystickMovementY() {
 		SettingsState inst = SettingsState.getInstance();
@@ -167,7 +187,7 @@ public class HeroControl extends RunnerControl implements AnalogListener,
 	
 	public void dig(int direction) {
 		assert UnitControl.isDiagonal(direction);
-		if (dashing) return;
+		if (dashing || !getCurrentFace().isGravityInfluenced()) return;
 		UnitControl dig = occupy.getLast().getAdjacent(direction);
 		if (dig != null && dig.diggable()) {
 			dig.dig();
@@ -208,9 +228,30 @@ public class HeroControl extends RunnerControl implements AnalogListener,
 	protected float calculateGlobalAnimationSpeed() {		
 		return (super.calculateGlobalAnimationSpeed()/getBasicSpeed())*getRealSpeed();
 	}
+	@Override
+	protected void onFaceChange(int oldFace, int newFace) {		
+		if (camera != null) {
+			if (newFace != LevelState.UP) {
+				camera.setHorizontalAngle(getCurrentFace().getAngleFacing());
+				camera.setVerticleAngle(0f);
+			}
+			else {
+				camera.setVerticleAngle(FastMath.HALF_PI*0.8f);
+				movementFace = oldFace;
+			}
+		}
+	}
 	
 	public void setCameraController(OrbitalCamera camera) {
 		this.camera = camera;
+	}	
+	private int transformMovementDirection(int direction) {
+		if (getCurrentFace().getIndex() != LevelState.UP) {
+			return direction;
+		}
+		else {
+			return wrap(direction+movementFace, UnitControl.U, UnitControl.L);
+		}
 	}
 	
 	@Override
@@ -245,10 +286,10 @@ public class HeroControl extends RunnerControl implements AnalogListener,
 	public void onAnalog(String name, float value, float tpf) {
 		if (!inTransition()) {
 			switch (name) {
-				case "up": climb(); break;
-				case "right": walk(UnitControl.R); break;
-				case "down": fall(true); break;
-				case "left": walk(UnitControl.L); break;
+				case "up": action(transformMovementDirection(UnitControl.U)); break;
+				case "right": action(transformMovementDirection(UnitControl.R)); break;
+				case "down": action(transformMovementDirection(UnitControl.D)); break;
+				case "left": action(transformMovementDirection(UnitControl.L)); break;
 			}
 		}
 	}
@@ -329,6 +370,20 @@ public class HeroControl extends RunnerControl implements AnalogListener,
 		hero.initHUD(assets);
 //		hero.initAudio(assets);
 		return hero;
+	}
+	
+	/**
+	 * A simple wrapping method.
+	 * Does not work if value moves outside (max-min)*2 bounds on either side.
+	 * @param value
+	 * @param min
+	 * @param max
+	 * @return 
+	 */
+	private static int wrap(int value, int min, int max) {
+		if (value > max) return min+(value-max-1);
+		else if (value < min) return max-(min-value-1);
+		else return value;
 	}
 	
 }

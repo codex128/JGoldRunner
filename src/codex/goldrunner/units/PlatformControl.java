@@ -14,7 +14,6 @@ import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.shape.Box;
-import java.awt.Point;
 
 /**
  *
@@ -34,6 +33,10 @@ public class PlatformControl extends UnitControl {
 	@Override
 	public boolean stand(Traveller travel) {
 		return !travel.fallThroughPlatforms();
+	}
+	@Override
+	public boolean physical() {
+		return true;
 	}
 	
 	@Override

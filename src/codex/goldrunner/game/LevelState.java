@@ -12,7 +12,6 @@ import codex.goldrunner.items.*;
 import codex.goldrunner.runners.*;
 import codex.goldrunner.units.UnitControl;
 import codex.goldrunner.units.UnitLoader;
-import codex.goldrunner.util.IncompatibilityException;
 import codex.goldrunner.util.Index3i;
 import codex.goldrunner.util.JoystickEventListener;
 import codex.goldrunner.util.TrackerLight;
@@ -30,17 +29,22 @@ import com.jme3.app.state.BaseAppState;
 import com.jme3.asset.AssetManager;
 import com.jme3.audio.AudioKey;
 import com.jme3.audio.AudioNode;
+import com.jme3.bullet.BulletAppState;
 import com.jme3.input.JoystickButton;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.event.JoyAxisEvent;
 import com.jme3.input.event.JoyButtonEvent;
 import com.jme3.light.AmbientLight;
 import com.jme3.light.DirectionalLight;
+import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.FastMath;
+import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
+import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
+import com.jme3.scene.shape.Box;
 import com.jme3.texture.Texture;
 import com.jme3.util.SkyFactory;
 import com.simsilica.lemur.Container;
@@ -61,6 +65,9 @@ public class LevelState extends BaseAppState implements ActionListener,
 	public static final String DEFAULT_LOADER = "[DEFAULT_LOADER]";
 	public static final float UNIT_SIZE = 1f;
 	private static final HashMap<String, UnitLoader> loaders = new HashMap<>();
+	public static final int
+			SOUTH = 0, WEST = 1, NORTH = 2, EAST = 3, UP = 4;
+	public static final int TOP_MARGIN = 6;
 	
 	LevelListener client;
 	OrbitalCamera chase;
@@ -131,7 +138,7 @@ public class LevelState extends BaseAppState implements ActionListener,
 		chase.getDistanceDomain().set(null, null);
 		chase.setDistance(18f);
 		//chase.setHorizontalAngle(FastMath.HALF_PI);
-		chase.setMotion(Motion.LERP);
+		chase.setMotion(Motion.INSTANT);
 		chase.setLocationOffset(new Vector3f(0, 1, 0));
 		endtimer.addListener(this);
 		
@@ -221,7 +228,13 @@ public class LevelState extends BaseAppState implements ActionListener,
 		client.onRestart(this);
 	}
 	public void destroy() {
+		BulletAppState bullet = getState(BulletAppState.class);
 		if (faces != null) for (MapFace face : faces) {
+			if (bullet != null && bullet.getPhysicsSpace() != null) for (int i = 0; i < face.getMap().length; i++) {
+				for (int j = 0; j < face.getMap()[i].length; j++) {
+					bullet.getPhysicsSpace().remove(face.getUnit(j, i));
+				}
+			}
 			face.detachAllChildren();
 		}
 		level.detachAllChildren();
@@ -250,21 +263,10 @@ public class LevelState extends BaseAppState implements ActionListener,
 		this.data = data;
 		Integer version = this.data.getSource().getInteger("version");
 		if (version != null && version > LevelData.VERSION) {
-			throw new IncompatibilityException(
-				"This program cannot read levels of version "+(LevelData.VERSION+1)+" or above!");
+			notifyListeners(l -> l.onError(this, "Your JGoldRunner version is too old\nto run levels of version "+(LevelData.VERSION+1)+" or above!"));
 		}
 		is3D = this.data.getSource().getBoolean("3D", false);
-		final int topmargin = 6;
-		loadMap(topmargin);
-		boolean escapable = false;
-		for (int i = 0; i < faces.length; i++) {
-			if (loadTopMargin(i, topmargin)) {
-				escapable = true;
-			}
-		}
-		if (!escapable) {
-			notifyListeners(l -> l.onError(this, "The level cannot be escaped from!"));
-		}
+		loadMap();
 		if (hero == null) {
 			notifyListeners(l -> l.onError(this, "No Hero found in Level!"));
 		}
@@ -294,34 +296,34 @@ public class LevelState extends BaseAppState implements ActionListener,
 			loadBorderConcrete(thickness, height);
 			// load world scene
 			createWorldBackground(1f);
+			if (is3D) create3DWorld();
 		}
 	}
 	
-	private void loadMap(int topmargin) {		
+	private void loadMap() {		
 		J3map cipher = data.getSource().getJ3map("cipher");
 		if (cipher == null) cipher = data.getSource();
-		faces = new MapFace[is3DFormat() ? 4 : 1];
+		faces = new MapFace[is3DFormat() ? 5 : 1];
+		boolean escapable = false;
 		for (int f = 0; f < faces.length; f++) {
 			String[] map = data.getSource().getStringArray("map"+(f > 0 ? f : ""));
 			if (map == null) {
 				throw new IllegalStateException("Level data missing map"+(f > 0 ? f : "")+"!");
 			}
-			faces[f] = new MapFace(this, new UnitControl[map.length+topmargin][map[0].length()], f, getFaceAngle(f));
-			for (int i = 0; i < map.length; i++) {
-				for (int j = 0; j < map[i].length(); j++) {
-					String key = cipher.getString(""+map[i].charAt(j));
-					loadUnit(key, f, j, i+topmargin);
-				}
+			faces[f] = createMapFace(f);
+			if (faces[f].load(map, cipher)) {
+				escapable = true;
 			}
 			level.attachChild(faces[f]);
-		}
-		if (is3DFormat()) {
-			faces[1].setLocalTranslation(-UNIT_SIZE, 0f, -(faces[1].getMap()[0].length)*UNIT_SIZE);
-			faces[2].setLocalTranslation((faces[0].getMap()[0].length-1)*UNIT_SIZE, 0f, -(faces[1].getMap()[0].length+1)*UNIT_SIZE);
-			faces[3].setLocalTranslation(faces[0].getMap()[0].length*UNIT_SIZE, 0f, -UNIT_SIZE);
+			faces[f].setLocalTranslation(getFaceTranslation(f));
+			faces[f].setLocalRotation(getFaceRotation(f));
+			faces[f].setAngleFacing(getFacingAngle(f));
+		}		
+		if (!escapable) {
+			notifyListeners(l -> l.onError(this, "The level cannot be escaped from!"));
 		}
 	}
-	private void loadUnit(String key, int face, int x, int y) {
+	protected void loadUnit(String key, int face, int x, int y) {
 		AssetManager assets = getApplication().getAssetManager();
 		UnitLoader loader = getUnitLoader(key);
 		Spatial spatial = loader.loadSpatial(key, false, assets);
@@ -331,6 +333,8 @@ public class LevelState extends BaseAppState implements ActionListener,
 		spatial.setLocalTranslation(location);
 		faces[face].attachChild(spatial);
 		faces[face].getMap()[y][x] = unit;
+		// physics
+		getState(BulletAppState.class).getPhysicsSpace().add(unit);
 		// load runner
 		RunnerControl person = loader.spawn(key, false, unit, assets);
 		if (person != null) {
@@ -354,28 +358,7 @@ public class LevelState extends BaseAppState implements ActionListener,
 			}
 		}
 	}
-	private boolean loadTopMargin(int face, int margin) {		
-		boolean escapable = false;
-		for (int j = 0; j < faces[face].getMap()[0].length; j++) {
-			if (faces[face].getMap()[margin][j].escapable()) {
-				loadColumn("escape-ladder", face, j, 1, margin);
-				escapable = true;
-			}
-			else {
-				loadColumn(null, face, j, 1, margin);
-			}
-			loadUnit("goal", face, j, 0);
-		}
-		return escapable;
-	}
-	private void loadSection(String key, int face, Point start, Point end) {
-		for (int i = start.y; i > 0 && i < end.y && i < faces[face].getMap().length; i++) {
-			for (int j = start.x; j > 0 && j < end.x && j < faces[face].getMap()[i].length; j++) {
-				loadUnit(key, face, j, i);
-			}
-		}
-	}
-	private void loadColumn(String key, int face, int column, int start, int end) {
+	protected void loadColumn(String key, int face, int column, int start, int end) {
 		assert column >= 0 && column < faces[face].getMap()[0].length;
 		for (int i = Math.max(start, 0); (end < 0 | i < end) && i < faces[face].getMap().length; i++) {
 			loadUnit(key, face, column, i);
@@ -456,12 +439,46 @@ public class LevelState extends BaseAppState implements ActionListener,
 //		back.setMaterial(bm);
 //		background.attachChild(back);
 	}
-	private float getFaceAngle(int index) {
+	private void create3DWorld() {
+		AssetManager assets = getApplication().getAssetManager();
+		Geometry cube = new Geometry("inner_cube", new Box(10*UNIT_SIZE, 10*UNIT_SIZE, 10*UNIT_SIZE));
+		cube.setLocalTranslation(9.5f*UNIT_SIZE, -(10.5f+TOP_MARGIN)*UNIT_SIZE, -10.5f*UNIT_SIZE);
+		Material mat = new Material(assets, "Common/MatDefs/Light/Lighting.j3md");
+		mat.setTexture("DiffuseMap", assets.loadTexture("Textures/concrete.png"));
+		cube.setMaterial(mat);
+		level.attachChild(cube);
+	}
+	private MapFace createMapFace(int index) {
+		if (index != LevelState.UP) {
+			return new MapFace(this, index);
+		}
+		else {
+			return new FlatMapFace(this, index, TOP_MARGIN);
+		}
+	}
+	private Vector3f getFaceTranslation(int index) {
 		switch (index) {
-			case 0: return 0f;
-			case 1: return -FastMath.PI*0.5f;
+			case 1: return new Vector3f(-UNIT_SIZE, 0f, -(faces[1].getMap()[0].length)*UNIT_SIZE);
+			case 2: return new Vector3f((faces[0].getMap()[0].length-1)*UNIT_SIZE, 0f, -(faces[1].getMap()[0].length+1)*UNIT_SIZE);
+			case 3: return new Vector3f(faces[0].getMap()[0].length*UNIT_SIZE, 0f, -UNIT_SIZE);
+			case 4: return new Vector3f(0f, -TOP_MARGIN*UNIT_SIZE, -(faces[4].getMap().length)*UNIT_SIZE);
+			default: return new Vector3f();
+		}
+	}
+	private Quaternion getFaceRotation(int index) {
+		switch (index) {
+			case 1: return new Quaternion().fromAngleAxis(-FastMath.PI*0.5f, Vector3f.UNIT_Y);
+			case 2: return new Quaternion().fromAngleAxis(FastMath.PI, Vector3f.UNIT_Y);
+			case 3: return new Quaternion().fromAngleAxis(FastMath.PI*0.5f, Vector3f.UNIT_Y);
+			case 4: return new Quaternion().fromAngleAxis(-FastMath.HALF_PI, Vector3f.UNIT_X);
+			default: return new Quaternion();
+		}
+	}
+	private float getFacingAngle(int index) {
+		switch (index) {
+			case 1: return FastMath.HALF_PI;
 			case 2: return FastMath.PI;
-			case 3: return FastMath.PI*0.5f;
+			case 3: return FastMath.HALF_PI*3;
 			default: return 0f;
 		}
 	}
@@ -503,7 +520,17 @@ public class LevelState extends BaseAppState implements ActionListener,
 		return faces;
 	}
 	public MapFace getFace(int face) {
+		if (face < 0 || face >= faces.length) return null;
 		return faces[face];
+	}
+	public FlatMapFace getFlatFace() {
+		MapFace f = getFace(UP);
+		if (f instanceof FlatMapFace) {
+			return (FlatMapFace)f;
+		}
+		else {
+			throw new NullPointerException("Could not locate flat face at the expected location!");
+		}
 	}
 	public UnitControl[][] getUnitsForFace(int face) {
 		return faces[face].getMap();

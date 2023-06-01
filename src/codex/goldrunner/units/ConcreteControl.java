@@ -9,7 +9,6 @@ import codex.goldrunner.runners.Traveller;
 import codex.goldrunner.util.Index3i;
 import com.jme3.asset.AssetManager;
 import com.jme3.scene.Spatial;
-import java.awt.Point;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -35,7 +34,11 @@ public class ConcreteControl extends UnitControl {
 		return false;
 	}
 	@Override
-	public boolean stand(Traveller travel) {
+	public boolean solid() {
+		return true;
+	}
+	@Override
+	public boolean physical() {
 		return true;
 	}
 	@Override

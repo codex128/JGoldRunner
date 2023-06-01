@@ -65,6 +65,10 @@ public class EscapeLadderControl extends LadderControl implements LevelListener,
 		// mid = in between and blocks digging
 		return (activated ? MID : BACK);
 	}
+	@Override
+	public boolean physical() {
+		return false;
+	}
 	
 	@Override
 	public void onAllGoldCollected(LevelState level) {
@@ -89,6 +93,7 @@ public class EscapeLadderControl extends LadderControl implements LevelListener,
 		spatial.getParent().attachChild(emitter);
 		emitter.setLocalTransform(spatial.getLocalTransform());
 		emitter.emitAllParticles();
+		initializePhysicsBody();
 		activated = true;
 	}
 	private void initParticleEmitter(AssetManager assets) {

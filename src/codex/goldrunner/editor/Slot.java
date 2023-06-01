@@ -36,7 +36,7 @@ import com.jme3.math.Vector3f;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
-import com.jme3.scene.shape.Box;
+import com.jme3.scene.shape.Quad;
 import com.simsilica.lemur.event.MouseEventControl;
 import com.simsilica.lemur.event.MouseListener;
 import java.awt.Point;
@@ -57,7 +57,6 @@ public class Slot implements ItemCarrier {
 	AssetManager assets;
 	Point index;
 	Node n = new Node("[master]");
-	Node back = new Node("[background]");
 	Unit unit;
 	BackgroundElement background;
 	
@@ -67,13 +66,11 @@ public class Slot implements ItemCarrier {
 		n.addControl(new MouseEventControl(listener));
 		n.setUserData(INDEX_X, index.x);
 		n.setUserData(INDEX_Y, index.y);
-		n.attachChild(back);
-		back.setLocalTranslation(0f, 0f, -5f);
 		loadVisualBoundaries();
 	}
 	
 	private void loadVisualBoundaries() {
-		Geometry g = new Geometry("boundaries", new Box(.5f, .5f, .5f));
+		Geometry g = new Geometry("boundaries", new Quad(1f, 1f));
 		g.setLocalTranslation(0, 0, -10f);
 		Material m = new Material(assets, "Common/MatDefs/Misc/Unshaded.j3md");
 		m.setColor("Color", ColorRGBA.Blue);
@@ -101,16 +98,6 @@ public class Slot implements ItemCarrier {
 				wrapper.attachChild(item.getSpatial());
 			}
 			n.attachChild(wrapper);
-		}
-	}
-	public void setBackground(BackgroundElement background) {
-		back.detachChildNamed(BACKGROUND);
-		this.background = background;
-		if (this.background != null) {
-			Node wrapper = new Node(BACKGROUND);
-			Spatial spatial = assets.loadModel(this.background.getModel());
-			wrapper.attachChild(spatial);
-			back.attachChild(wrapper);
 		}
 	}
 	

@@ -29,6 +29,8 @@ import com.jme3.app.state.BaseAppState;
 import com.jme3.asset.plugins.FileLocator;
 import com.jme3.audio.AudioData.DataType;
 import com.jme3.audio.AudioNode;
+import com.jme3.bullet.BulletAppState;
+import com.jme3.bullet.PhysicsSpace.BroadphaseType;
 import com.jme3.font.BitmapFont;
 import com.jme3.font.BitmapText;
 import com.jme3.input.InputManager;
@@ -205,8 +207,11 @@ public class InitializationState extends BaseAppState {
 		return !lib.audioInBucket();
 	}
 	private void initAppStates() {
+		BulletAppState bulletapp = new BulletAppState(BroadphaseType.DBVT);
+		bulletapp.setDebugEnabled(true);
+		bulletapp.setDebugViewPorts(getApplication().getRenderManager().createPostView("debug", getApplication().getCamera()));
 		getStateManager().attachAll(
-//				new BulletAppState(),
+				bulletapp,
 				new OptionPanelState(),
 				new TransitionState(),
 				new LevelManager(),

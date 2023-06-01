@@ -51,7 +51,9 @@ public abstract class RunnerControl extends AbstractControl implements Traveller
 	@Override
 	protected void controlUpdate(float tpf) {
 		if (pause || stationary()) return;
-		fall(false);
+		if (getCurrentFace().isGravityInfluenced()) {
+			fall(false);
+		}
 		if (!inTransition()) {
 			if (occupy.size() > 1) occupy.removeFirst();
 			else if (moving) {
@@ -111,6 +113,9 @@ public abstract class RunnerControl extends AbstractControl implements Traveller
 		}
 		occupy.addLast(unit);
 		if (occupy.size() > 2) occupy.removeFirst();
+		if (occupy.getLast().getIndex().z != occupy.getFirst().getIndex().z) {
+			onFaceChange(occupy.getFirst().getIndex().z, occupy.getLast().getIndex().z);
+		}
 		if (!moving) {
 			onStartRunning();
 			moving = true;
@@ -149,11 +154,16 @@ public abstract class RunnerControl extends AbstractControl implements Traveller
 		else return false;
 	}
 	public boolean action(int direction) {
+		assert UnitControl.isOrthogonal(direction);
+		if (!getCurrentFace().isGravityInfluenced()) {
+			return simpleWalk(direction);
+		}
 		switch (direction) {
 			case UnitControl.U: return climb();
 			case UnitControl.R:
 			case UnitControl.L: return walk(direction);
 			case UnitControl.D: return fall(true);
+			case UnitControl.IN: return walkIn();
 			default: return false;
 		}
 	}
@@ -182,15 +192,44 @@ public abstract class RunnerControl extends AbstractControl implements Traveller
 		}
 		return false;
 	}
+	public boolean simpleWalk(int direction) {
+		assert UnitControl.isOrthogonal(direction);
+		UnitControl dest = occupy.getLast().getAdjacent(direction);
+		if (dest != null) {
+			if (move(dest, direction, true)) {
+				Quaternion rot = new Quaternion();
+				rot.lookAt(occupy.getLast().getSpatial().getWorldTranslation()
+						.subtract(occupy.getFirst().getSpatial()
+						.getWorldTranslation()), Vector3f.UNIT_Y);
+				spatial.setLocalRotation(rot);
+				performAnimationAction("run");
+				return true;
+			}
+		}
+		return false;
+	}
+	public boolean walkIn() {
+		UnitControl in = occupy.getLast().getIn();
+		if (in != null) {
+			if (move(in, UnitControl.IN, true)) {
+				System.out.println("perform action: run in");
+				performAnimationAction("run");
+				return true;
+			}
+		}
+		return false;
+	}
 	public boolean climb() {
-		UnitControl up = occupy.getLast().getAdjacent(UnitControl.U);
+		UnitControl up = occupy.getLast().getUp();
 		if (up != null) {
 			if (move(up, UnitControl.U, true)) {
-				spatial.setLocalRotation(new Quaternion()
-						.fromAngleAxis(getCurrentFace().getAngle()+FastMath.PI, new Vector3f(0, 1, 0)));
+				spatial.setLocalRotation(getCurrentFace().getLocalRotation());
 				performAnimationAction("climb");
 				return true;
 			}
+		}
+		else {
+			return walkIn();
 		}
 		return false;
 	}
@@ -228,6 +267,9 @@ public abstract class RunnerControl extends AbstractControl implements Traveller
 	protected void onArrival(UnitControl arrive) {
 		transition = false;
 		snap(arrive);
+	}
+	protected void onFaceChange(int oldFace, int newFace) {
+		
 	}
 	
 	@Override

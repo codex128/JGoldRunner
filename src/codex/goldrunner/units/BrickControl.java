@@ -26,8 +26,8 @@ import java.awt.Point;
 public class BrickControl extends UnitControl implements TimerListener {
 	
 	public static final int UNDIG_TIME = 6;
+	
 	Timer time = new Timer(UNDIG_TIME);
-	Timer filltime = new Timer(.5f);
 	ParticleEmitter emitter;
 	
 	
@@ -52,6 +52,7 @@ public class BrickControl extends UnitControl implements TimerListener {
 		emitter.setLocalTransform(spatial.getLocalTransform());
 		emitter.emitAllParticles();
 		spatial.getParent().attachChild(emitter);
+		space.remove(rigidBody);
 	}
 	@Override
 	public boolean enter(Traveller travel, boolean force) {
@@ -70,7 +71,7 @@ public class BrickControl extends UnitControl implements TimerListener {
 				up.zIndex() == UnitControl.BACK);
 	}
 	@Override
-	public boolean stand(Traveller travel) {
+	public boolean solid() {
 		return !time.isRunning();
 	}
 	@Override
@@ -87,8 +88,13 @@ public class BrickControl extends UnitControl implements TimerListener {
 		return !time.isRunning() ? FORE : BACK;
 	}
 	@Override
+	public boolean physical() {
+		return true;
+	}
+	@Override
 	public void onTimerFinish(Timer timer) {		
 		spatial.setCullHint(Spatial.CullHint.Inherit);
+		space.add(rigidBody);
 		time.reset();
 	}
 	

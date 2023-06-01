@@ -44,6 +44,10 @@ public class LadderControl extends UnitControl {
 	public boolean escapable() {
 		return true;
 	}
+	@Override
+	public boolean physical() {
+		return true;
+	}
 	
 	@Override
 	public String[] types() {

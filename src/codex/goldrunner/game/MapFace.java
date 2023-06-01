@@ -25,8 +25,7 @@ package codex.goldrunner.game;
 
 import codex.goldrunner.units.UnitControl;
 import codex.goldrunner.util.Index3i;
-import com.jme3.math.Quaternion;
-import com.jme3.math.Vector3f;
+import codex.j3map.J3map;
 import com.jme3.scene.Node;
 
 /**
@@ -40,12 +39,38 @@ public class MapFace extends Node {
 	int index;
 	float angle;
 	
-	public MapFace(LevelState level, UnitControl[][] map, int index, float angle) {
+	public MapFace(LevelState level, int index) {
 		this.level = level;
 		this.index = index;
-		this.map = map;
+	}
+	
+	protected UnitControl[][] generateMap(String[] mapData) {
+		return new UnitControl[mapData.length+LevelState.TOP_MARGIN][mapData[0].length()];
+	}
+	public boolean load(String[] mapData, J3map cipher) {
+		map = generateMap(mapData);
+		for (int i = 0; i < mapData.length; i++) {
+			for (int j = 0; j < mapData[i].length(); j++) {
+				String key = cipher.getString(""+mapData[i].charAt(j));
+				level.loadUnit(key, index, j, i+LevelState.TOP_MARGIN);
+			}
+		}
+		boolean escapable = false;
+		for (int j = 0; j < map[0].length; j++) {
+			if (map[LevelState.TOP_MARGIN][j].escapable()) {
+				level.loadColumn("escape-ladder", index, j, 1, LevelState.TOP_MARGIN);
+				escapable = true;
+			}
+			else {
+				level.loadColumn(null, index, j, 1, LevelState.TOP_MARGIN);
+			}
+			level.loadUnit("goal", index, j, 0);
+		}
+		return escapable;
+	}
+	
+	public void setAngleFacing(float angle) {
 		this.angle = angle;
-		setLocalRotation(new Quaternion().fromAngleAxis(angle, Vector3f.UNIT_Y));
 	}
 	
 	public LevelState getLevel() {
@@ -57,7 +82,10 @@ public class MapFace extends Node {
 	public UnitControl[][] getMap() {
 		return map;
 	}
-	public float getAngle() {
+	public boolean isGravityInfluenced() {
+		return true;
+	}
+	public float getAngleFacing() {
 		return angle;
 	}
 	
@@ -66,9 +94,9 @@ public class MapFace extends Node {
 	}
 	public MapFace getAdjacentFace(int direction) {
 		int i = index+toIndexDirection(direction);
-		int l = level.getFaces().length;
-		if (i < 0) i = l-1;
-		else if (i >= l) i = 0;
+		int l = LevelState.EAST;
+		if (i < 0) i = l;
+		else if (i > l) i = 0;
 		return level.getFace(i);
 	}
 	private int toIndexDirection(int direction) {
@@ -79,35 +107,89 @@ public class MapFace extends Node {
 			case UnitControl.DR:
 			case UnitControl.R: return -1;
 			default:
-				throw new IllegalArgumentException("Direction must be horizontal!");
+				throw new IllegalArgumentException("Direction must be horizontal or diagonal!");
 		}
 	}
 	
+	/**
+	 * Get the unit adjacent to the given unit in the given direction.
+	 * @param unit starting unit
+	 * @param direction direction of adjacency
+	 * @return adjacent unit, null if none adjacent
+	 */
 	public static UnitControl getAdjacentUnit(UnitControl unit, int direction) {
-		//assert UnitControl.isOrthogonal(direction);
-		//System.out.println("--- starting ---");
 		Index3i index = new Index3i(unit.getIndex());
-		//System.out.println("  base index: "+index);
 		LevelState level = unit.getLevel();
 		MapFace face = level.getFace(index.z);
 		Index3i d = UnitControl.generateDirectional(direction);
 		index.x += d.x;
 		index.y += d.y;
-		//System.out.println("  moved index: "+index);
-		if (index.y < 0 || index.y >= face.getMap().length) {
-			return null;
+		boolean up = index.y < 0;
+		boolean right = index.x >= face.getMap()[0].length;
+		boolean down = index.y >= face.getMap().length;
+		boolean left = index.x < 0;
+		if (direction == UnitControl.IN) {
+			if (index.y == level.getFlatFace().getVerticalIndex()) {
+				face = level.getFace(LevelState.UP);
+				if (face == null) return null;
+				switch (index.z) {
+					case LevelState.SOUTH:
+						index.y = face.getMap().length-1;
+						break;
+					case LevelState.WEST:
+						index.y = index.x;
+						index.x = 0;
+						break;
+					case LevelState.NORTH:
+						index.y = 0;
+						index.x = face.getMap().length-1-index.x;
+						break;
+					case LevelState.EAST:
+						index.y = face.getMap().length-1-index.x;
+						index.x = face.getMap()[index.y].length-1;
+						break;
+				}
+			}
+			else return null;
 		}
-		if (index.x < 0) {
-			face = face.getAdjacentFace(direction);
-			index.x = face.getMap()[0].length-1;
-			//System.out.println("    wrap left to "+face.getIndex());
+		else if (up || right || down || left) {
+			if (index.z != LevelState.UP) {
+				if (down || up || (!unit.getLevel().is3DFormat() && (right || left))) {
+					return null;
+				}
+				if (left) {
+					face = face.getAdjacentFace(direction);
+					index.x = face.getMap()[0].length-1;
+				}
+				else if (right) {
+					face = face.getAdjacentFace(direction);
+					index.x = 0;
+				}
+			}
+			else {
+				int y;
+				if (face instanceof FlatMapFace) {
+					y = ((FlatMapFace)face).getVerticalIndex();
+				}
+				else y = 0;
+				if (down) {
+					face = level.getFace(LevelState.SOUTH);
+				}
+				else if (left) {
+					face = level.getFace(LevelState.WEST);
+					index.x = index.y;
+				}
+				else if (up) {
+					face = level.getFace(LevelState.NORTH);
+					index.x = face.getMap()[0].length-1-index.x;
+				}
+				else if (right) {
+					face = level.getFace(LevelState.EAST);
+					index.x = face.getMap()[0].length-1-index.y;
+				}
+				index.y = y;
+			}
 		}
-		else if (index.x >= face.getMap()[0].length) {
-			face = face.getAdjacentFace(direction);
-			index.x = 0;
-			//System.out.println("   wrap right to "+face.getIndex());
-		}
-		//System.out.println("  final index: "+index);
 		return face.getUnit(index.x, index.y);
 	}
 	

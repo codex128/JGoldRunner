@@ -271,7 +271,7 @@ public class LevelEditorState extends BaseAppState implements
 		Integer version = source.getInteger("version");
 		if (version != null && version > LevelData.VERSION) {
 			throw new IncompatibilityException(
-				"This program cannot read levels of version "+(LevelData.VERSION+1)+" or above!");
+				"This version of JGoldRunner cannot read levels of version "+(LevelData.VERSION+1)+" or above!");
 		}
 		J3map cipher = source.getJ3map("cipher");
 		if (cipher == null) cipher = data.getSource();
@@ -292,13 +292,6 @@ public class LevelEditorState extends BaseAppState implements
 					}
 				}
 			}
-		}
-		J3map bg = source.getJ3map("background");
-		if (bg != null) {
-			bg.forEachType(BackgroundElement.class, (property) -> {
-				slots[property.getIndex().y][property.getIndex().x]
-						.setBackground(property);
-			});
 		}
 	}
 	private void loadNewLevel() {

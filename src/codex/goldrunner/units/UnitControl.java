@@ -25,20 +25,25 @@ import java.io.IOException;
 import codex.goldrunner.items.ItemCarrier;
 import codex.goldrunner.util.Index3i;
 import com.jme3.anim.AnimComposer;
+import com.jme3.bullet.PhysicsSpace;
+import com.jme3.bullet.control.PhysicsControl;
+import com.jme3.bullet.control.RigidBodyControl;
+import com.jme3.bullet.objects.PhysicsRigidBody;
+import com.jme3.bullet.util.CollisionShapeFactory;
 
 /**
  *
  * @author gary
  */
-public abstract class UnitControl extends AbstractControl
-		implements UnitLoader, ItemCarrier {
+public abstract class UnitControl extends AbstractControl implements PhysicsControl, UnitLoader, ItemCarrier {
 	
-	public static final int NONE = -1, U = 0, R = 1, D = 2, L = 3,
-			DR = 4, DL = 5;
+	public static final int NONE = -1, U = 0, R = 1, D = 2, L = 3, IN = 4, DR = 5, DL = 6;
 	public static final int FORE = 0, MID = 1, BACK = 2;
 	LevelState level;
 	Index3i index;
 	ItemControl item;
+	PhysicsSpace space;
+	RigidBodyControl rigidBody;
 	
 	/**
 	 * For internal use only.
@@ -53,8 +58,7 @@ public abstract class UnitControl extends AbstractControl
 		this.level = level;
 		this.index = index;
 		initialize();
-	}
-	
+	}	
 	
 	protected void initialize() {}
 	
@@ -101,6 +105,7 @@ public abstract class UnitControl extends AbstractControl
 			case L: return getLeft();
 			case DR: return getDownRight();
 			case DL: return getDownLeft();
+			case IN: return getIn();
 			default: return null;
 		}
 	}
@@ -116,7 +121,11 @@ public abstract class UnitControl extends AbstractControl
 		}
 	}
 	public UnitControl getUp() {
-		return null;
+		if (getFace().isGravityInfluenced()) return null;
+		return MapFace.getAdjacentUnit(this, U);
+	}
+	public UnitControl getIn() {
+		return MapFace.getAdjacentUnit(this, IN);
 	}
 	public UnitControl getRight() {
 		return MapFace.getAdjacentUnit(this, R);
@@ -142,7 +151,7 @@ public abstract class UnitControl extends AbstractControl
 		return false;
 	}
 	public int getDirectionTo(UnitControl unit) {
-		for (int i = 0; i < DL+1; i++) {
+		for (int i = 0; i <= IN; i++) {
 			if (getAdjacent(i) == unit) return i;
 		}
 		return NONE;
@@ -187,6 +196,9 @@ public abstract class UnitControl extends AbstractControl
 		return false;
 	}
 	public boolean stand(Traveller travel) {
+		return solid();
+	}
+	public boolean solid() {
 		return false;
 	}
 	public boolean killer() {
@@ -200,6 +212,9 @@ public abstract class UnitControl extends AbstractControl
 		return false;
 	}
 	public boolean goal() {
+		return false;
+	}
+	public boolean physical() {
 		return false;
 	}
 	public int zIndex() {
@@ -241,6 +256,9 @@ public abstract class UnitControl extends AbstractControl
 	public LevelState getLevel() {
 		return level;
 	}
+	public MapFace getFace() {
+		return getLevel().getFace(index.z);
+	}
 	
 	public static Integer getDiagonalVersion(int direction) {
 		switch (direction) {
@@ -278,6 +296,7 @@ public abstract class UnitControl extends AbstractControl
 			case D: return new Index3i(0, 1, 0);
 			case DL: return new Index3i(-1, 1, 0);
 			case L: return new Index3i(-1, 0, 0);
+			case IN: return new Index3i(0, 0, 0);
 			default:
 				throw new IllegalArgumentException("Invalid direction integer "+direction+"!");
 		}
@@ -292,7 +311,7 @@ public abstract class UnitControl extends AbstractControl
 		return new int[]{DR, DL};
 	}
 	public static int[] getOrthogonalDirections() {
-		return new int[]{U, R, D, L};
+		return new int[]{U, R, D, L, IN};
 	}
 	
 	@Override
@@ -306,6 +325,41 @@ public abstract class UnitControl extends AbstractControl
 	@Override
 	public UnitControl loadControl(String type, LevelState level, Index3i index) {
 		return new UnitControl(level, index) {};
+	}
+
+	@Override
+	public PhysicsSpace getPhysicsSpace() {
+		return space;
+	}
+	@Override
+	public void setPhysicsSpace(PhysicsSpace space) {
+		if (true || this.space == space) return;
+		if (space != null) {
+			this.space = space;
+			if (!physical()) return;
+			if (spatial == null) {
+				throw new IllegalStateException("Must have spatial to initialize physics!");
+			}
+			initializePhysicsBody();
+		}
+		else {
+			if (rigidBody != null) {
+				cleanupPhysicsBody();
+			}
+			this.space = null;
+		}
+	}
+	protected void initializePhysicsBody() {
+		rigidBody = new RigidBodyControl(0f);
+		spatial.addControl(rigidBody);
+		space.add(rigidBody);
+		rigidBody.setPhysicsLocation(spatial.getWorldTranslation());
+		rigidBody.setPhysicsRotation(spatial.getWorldRotation());
+	}
+	protected void cleanupPhysicsBody() {
+		rigidBody.getSpatial().removeControl(rigidBody);
+		space.remove(rigidBody);
+		rigidBody = null;
 	}
 	
 }

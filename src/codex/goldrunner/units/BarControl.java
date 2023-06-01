@@ -9,7 +9,6 @@ import codex.goldrunner.game.LevelState;
 import codex.goldrunner.util.Index3i;
 import com.jme3.asset.AssetManager;
 import com.jme3.scene.Spatial;
-import java.awt.Point;
 
 /**
  *
@@ -30,6 +29,10 @@ public class BarControl extends UnitControl {
 	public int zIndex() {
 		// mid = in between and blocks digging
 		return UnitControl.FORE;
+	}
+	@Override
+	public boolean physical() {
+		return true;
 	}
 	
 	@Override
