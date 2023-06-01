@@ -93,7 +93,7 @@ public class EscapeLadderControl extends LadderControl implements LevelListener,
 		spatial.getParent().attachChild(emitter);
 		emitter.setLocalTransform(spatial.getLocalTransform());
 		emitter.emitAllParticles();
-		initializePhysicsBody();
+		//initializePhysicsBody();
 		activated = true;
 	}
 	private void initParticleEmitter(AssetManager assets) {

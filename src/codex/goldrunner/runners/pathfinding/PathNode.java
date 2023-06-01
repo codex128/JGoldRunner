@@ -95,18 +95,10 @@ public class PathNode implements Traveller {
 		if (unit == null) return null;
 		LinkedList<PathNode> created = new LinkedList<>();
 		TraversalStepReport rep;
-		// running this code should make the pathfinding more intelligent
-		/*for (int i : UnitControl.getVerticleDirections()) {
-			rep = probeVerticle(visited, created, unit, i);
-			if (rep != null) return rep;
-		}		
-		for (int i : UnitControl.getHorizontalDirections()) {
-			rep = probeHorizontal(visited, created, unit, i);
-			if (rep != null) return rep;
-		}*/
 		for (int i : UnitControl.getOrthogonalDirections()) {
 			UnitControl down = unit.getDown();
-			if ((UnitControl.isHorizontal(i) || i == UnitControl.IN) && !unit.grabbable() && down != null && !down.stand(this) && unit.getFace().isGravityInfluenced()) {
+			if ((UnitControl.isHorizontal(i) || i == UnitControl.IN) && unit.getFace().isGravityInfluenced()
+					&& !unit.grabbable() && down != null && !down.stand(this)) {
 				continue;
 			}
 			rep = probeNext(visited, created, unit, unit.getAdjacent(i));

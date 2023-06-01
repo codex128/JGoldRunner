@@ -52,7 +52,7 @@ public class BrickControl extends UnitControl implements TimerListener {
 		emitter.setLocalTransform(spatial.getLocalTransform());
 		emitter.emitAllParticles();
 		spatial.getParent().attachChild(emitter);
-		space.remove(rigidBody);
+		//space.remove(rigidBody);
 	}
 	@Override
 	public boolean enter(Traveller travel, boolean force) {
@@ -94,7 +94,7 @@ public class BrickControl extends UnitControl implements TimerListener {
 	@Override
 	public void onTimerFinish(Timer timer) {		
 		spatial.setCullHint(Spatial.CullHint.Inherit);
-		space.add(rigidBody);
+		//space.add(rigidBody);
 		time.reset();
 	}
 	

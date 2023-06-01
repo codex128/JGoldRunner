@@ -115,7 +115,8 @@ public class LevelState extends BaseAppState implements ActionListener,
 		background.setLocalTranslation(0, 0, -UNIT_SIZE*2);
 		
 		// lighting
-		scene.addLight(new DirectionalLight(new Vector3f(1, -1, -1), new ColorRGBA(96f/255f, 149f/255f, 164f/255f, 1f)));
+		scene.addLight(new DirectionalLight(new Vector3f(1, -1, -1), new ColorRGBA(1f, 1f, 1f, 1f)));
+		scene.addLight(new DirectionalLight(new Vector3f(-1, 1, 1), new ColorRGBA(1f, 1f, 1f, 1f)));
 		scene.addLight(new AmbientLight(ColorRGBA.DarkGray));
 		trackers = new TrackerLight[2];
 		trackers[0] = new TrackerLight(new Vector3f(0f, 0f, 10f));
@@ -138,7 +139,8 @@ public class LevelState extends BaseAppState implements ActionListener,
 		chase.getDistanceDomain().set(null, null);
 		chase.setDistance(18f);
 		//chase.setHorizontalAngle(FastMath.HALF_PI);
-		chase.setMotion(Motion.INSTANT);
+		chase.setMotion(Motion.LERP);
+		//chase.setCameraSpeed(1f);
 		chase.setLocationOffset(new Vector3f(0, 1, 0));
 		endtimer.addListener(this);
 		
@@ -206,7 +208,6 @@ public class LevelState extends BaseAppState implements ActionListener,
 			});
 		}
 		if (allgoldcollected && hero.getOccupied().goal()) {
-			System.out.println("victory");
 			notifyListeners(l -> l.onVictory(this));
 		}
 		for (EnemyControl enemy : enemies) {			
@@ -214,7 +215,7 @@ public class LevelState extends BaseAppState implements ActionListener,
 				UnitControl spawn = enemy.getSpawnableUnit();
 				if (spawn != null) {
 					enemy.getSpatial().setLocalTranslation(spawn.getSpatial()
-							.getLocalTranslation().add(0, 10f, 0));
+							.getWorldTranslation().add(0, 10f, 0));
 					enemy.warp(spawn, "fall");
 					enemy.setAlive(true);
 				}
@@ -441,8 +442,8 @@ public class LevelState extends BaseAppState implements ActionListener,
 	}
 	private void create3DWorld() {
 		AssetManager assets = getApplication().getAssetManager();
-		Geometry cube = new Geometry("inner_cube", new Box(10*UNIT_SIZE, 10*UNIT_SIZE, 10*UNIT_SIZE));
-		cube.setLocalTranslation(9.5f*UNIT_SIZE, -(10.5f+TOP_MARGIN)*UNIT_SIZE, -10.5f*UNIT_SIZE);
+		Geometry cube = new Geometry("inner_cube", new Box(5f*UNIT_SIZE, 5f*UNIT_SIZE, 5f*UNIT_SIZE));
+		cube.setLocalTranslation(4.5f*UNIT_SIZE, -(5.5f+TOP_MARGIN)*UNIT_SIZE, -5.5f*UNIT_SIZE);
 		Material mat = new Material(assets, "Common/MatDefs/Light/Lighting.j3md");
 		mat.setTexture("DiffuseMap", assets.loadTexture("Textures/concrete.png"));
 		cube.setMaterial(mat);
