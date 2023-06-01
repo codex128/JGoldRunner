@@ -167,7 +167,7 @@ public class SettingsState extends BaseAppState
 	public J3map createDefaultSettings() {
 		J3map set = new J3map();
 		set.store("boosting", true);
-		set.store("music", true);
+		set.store("music", false);
 		set.store("display_total_time", false);
 		set.store("extreme_mode", false);
 		set.store("sluggish_mode", false);

@@ -105,6 +105,10 @@ public class PathNode implements Traveller {
 			if (rep != null) return rep;
 		}*/
 		for (int i : UnitControl.getOrthogonalDirections()) {
+			UnitControl down = unit.getDown();
+			if ((UnitControl.isHorizontal(i) || i == UnitControl.IN) && !unit.grabbable() && down != null && !down.stand(this) && unit.getFace().isGravityInfluenced()) {
+				continue;
+			}
 			rep = probeNext(visited, created, unit, unit.getAdjacent(i));
 			if (rep != null) return rep;
 		}

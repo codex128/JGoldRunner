@@ -210,9 +210,10 @@ public abstract class RunnerControl extends AbstractControl implements Traveller
 	}
 	public boolean walkIn() {
 		UnitControl in = occupy.getLast().getIn();
-		if (in != null) {
+		UnitControl down = occupy.getLast().getDown();
+		if (in != null && (occupy.getLast().grabbable() || down == null ||
+				down.stand(this) || blocked(down, UnitControl.D))) {
 			if (move(in, UnitControl.IN, true)) {
-				System.out.println("perform action: run in");
 				performAnimationAction("run");
 				return true;
 			}

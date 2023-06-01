@@ -231,6 +231,7 @@ public class EnemyControl extends RunnerControl implements TimerListener, UnitLo
 			pathfinder.refresh();
 		}
 		else {
+			// constantly refreshes the pathfinder
 			if (intelligence > 2) {
 				pathfinder.refresh();
 			}
@@ -239,7 +240,7 @@ public class EnemyControl extends RunnerControl implements TimerListener, UnitLo
 				pathfinder.find(chase);
 				pathfinder.start(occupy.getLast());
 			}
-			// traverse
+			// run pathfinder
 			while (!pathfinder.complete()) {
 				pathfinder.traverse();
 			}
