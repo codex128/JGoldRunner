@@ -37,7 +37,6 @@ MacOS and Windows have not been tested, but are expected to work.
 # Save Data
 Save data will be stored in ".goldrunnerdata" in the user's home folder.<br>
 Exported level packages will be stored under ".goldrunnerdata/exports".
-Delete 
 
 # Building from Source
 The project requires these dependencies:
