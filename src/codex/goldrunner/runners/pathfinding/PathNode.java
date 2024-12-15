@@ -112,8 +112,7 @@ public class PathNode implements Traveller {
         TraversalStepReport rep;
         for (int i : UnitControl.getOrthogonalDirections()) {
             UnitControl down = unit.getDown();
-            if ((UnitControl.isHorizontal(i) || i == UnitControl.IN) && unit.getFace().isGravityInfluenced()
-                    && !unit.grabbable() && down != null && !down.stand(this)) {
+            if (UnitControl.isHorizontal(i) && !unit.grabbable() && down != null && !down.stand(this)) {
                 continue;
             }
             rep = probeNext(visited, created, unit, unit.getAdjacent(i));

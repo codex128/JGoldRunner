@@ -107,7 +107,7 @@ public class EnemyControl extends RunnerControl implements TimerListener, UnitLo
             return;
         }
         super.controlUpdate(tpf);
-        simpleChase();
+        chase();
         if (caught()) {
             chase.kill();
         }
@@ -233,34 +233,20 @@ public class EnemyControl extends RunnerControl implements TimerListener, UnitLo
         return RunnerControl.blocked(runners, destination, this, chase);
     }
 
-    protected void simpleChase() {
-        if (chase == null) {
+    protected void chase() {
+        if (chase == null || inTransition()) {
             return;
         }
-        Vector3f there = chase.getOccupied().getSpatial().getLocalTranslation();
-        Vector3f here = occupy.getLast().getSpatial().getLocalTranslation();
-        int tFace = chase.getCurrentFace().getIndex();
-        int hFace = getCurrentFace().getIndex();
-        if (inTransition()) {
-            return;
-        }
+        Index3i here = getOccupied().getIndex();
+        Index3i target = chase.getOccupied().getIndex();
         // if not following path, use B-line method
-        if (pathfinder.getRoute() == null && intelligence < 2
-                && ((Math.abs(tFace - hFace) == 2 && walk(UnitControl.R))
-                || (hFace == 0 && tFace == 3 && walk(UnitControl.R))
-                || (hFace - tFace == 1 && walk(UnitControl.R))
-                || (hFace == 3 && tFace == 0 && walk(UnitControl.L))
-                || (tFace - hFace == 1 && walk(UnitControl.L))
-                || (there.y > here.y && climb())
-                || (there.x > here.x && walk(UnitControl.R))
-                || (there.x < here.x && walk(UnitControl.L))
-                || (there.y < here.y && fall(true)))) {
+        if (pathfinder.getRoute() == null &&
+                  ((target.y < here.y && climb())
+                || (target.x > here.x && walk(UnitControl.R))
+                || (target.x < here.x && walk(UnitControl.L))
+                || (target.y > here.y && fall(true)))) {
             pathfinder.refresh();
         } else {
-            // constantly refreshes the pathfinder
-            if (intelligence > 2) {
-                pathfinder.refresh();
-            }
             // start pathfinding
             if (pathfinder.cold()) {
                 pathfinder.find(chase);
@@ -272,7 +258,11 @@ public class EnemyControl extends RunnerControl implements TimerListener, UnitLo
             }
             // follow path
             if (pathfinder.getRoute() != null) {
-                action(occupy.getLast().getDirectionTo(pathfinder.getRoute().get()));
+                int dir = occupy.getLast().getDirectionTo(pathfinder.getRoute().get());
+                if (!action(dir)) {
+                    // stop following the path if stuck or complete
+                    pathfinder.refresh();
+                }
             }
         }
     }

@@ -26,10 +26,11 @@ public class Route {
         return route.getFirst();
     }
 
-    public void dismiss() {
+    public boolean dismiss() {
         if (!arrived()) {
-            route.remove(0);
+            route.removeFirst();
         }
+        return !arrived();
     }
 
     public boolean arrived() {
