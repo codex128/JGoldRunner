@@ -33,22 +33,24 @@ import com.simsilica.lemur.core.GuiLayout;
  * @author gary
  */
 public abstract class AbstractContainerControl extends AbstractControl {
-	
-	Container container;
-	
-	@Override
-	public void setSpatial(Spatial spat) {
-		super.setSpatial(spat);
-		if (spatial != null && !(spatial instanceof Container)) {
-			throw new IllegalArgumentException("This control only works on Containers!");
-		}
-		container = (Container)spatial;
-	}
-	public Container getContainer() {
-		return container;
-	}
-	public GuiLayout getLayout() {
-		return container.getLayout();
-	}
-	
+
+    Container container;
+
+    @Override
+    public void setSpatial(Spatial spat) {
+        super.setSpatial(spat);
+        if (spatial != null && !(spatial instanceof Container)) {
+            throw new IllegalArgumentException("This control only works on Containers!");
+        }
+        container = (Container) spatial;
+    }
+
+    public Container getContainer() {
+        return container;
+    }
+
+    public GuiLayout getLayout() {
+        return container.getLayout();
+    }
+
 }

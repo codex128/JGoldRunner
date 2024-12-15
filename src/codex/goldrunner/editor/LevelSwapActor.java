@@ -34,65 +34,71 @@ import com.simsilica.lemur.Label;
  */
 public class LevelSwapActor extends PackageActor {
 
-	ObjectLabel<LevelData> swap1 = new ObjectLabel<>();
-	ObjectLabel<LevelData> swap2 = new ObjectLabel<>();
-	
-	public LevelSwapActor(PackageEditorState editor) {
-		super(editor);
-		initializeGui();
-	}
-	
-	@Override
-	protected void initializeGui() {
-		getGui().addChild(new Label("Swap"));
-		getGui().addChild(swap1);
-		getGui().addChild(new Label("with"));
-		getGui().addChild(swap2);
-		getGui().addChild(new Button("Swap")).addClickCommands((source) -> {
-			if (swap1.getObject() != null && swap2.getObject() != null) {
-				swapLevels(swap1.getObject(), swap2.getObject());
-				getEditor().closeActor();
-			}
-		});
-		getGui().addChild(new Button("Cancel")).addClickCommands((source) -> {
-			getEditor().closeActor();
-		});
-	}
-	@Override
-	protected void onLevelSelected(LevelData level) {
-		if (swap1.getObject() == null) {
-			swap1.setObject(level);
-		}
-		else if (swap2.getObject() == null && swap1.getObject() != level) {
-			swap2.setObject(level);
-		}
-	}
-	@Override
-	protected void close() {
-		clearLevelsSwapping();
-	}
-	
-	private void swapLevels(LevelData l1, LevelData l2) {
-		if (l1 == null || l2 == null || l1 == l2) return;
-		int i1 = getEditor().getLevels().getModel().indexOf(l1);
-		int i2 = getEditor().getLevels().getModel().indexOf(l2);
-		if (i1 < 0 || i2 < 0) return;
-		if (i1 < i2) {
-			moveLevel(l1, i2);
-			moveLevel(l2, i1);
-		}
-		else {
-			moveLevel(l2, i1);
-			moveLevel(l1, i2);
-		}
-	}
-	private void moveLevel(LevelData level, int index) {
-		getEditor().getLevels().getModel().remove(level);
-		getEditor().getLevels().getModel().add(index, level);
-	}
-	private void clearLevelsSwapping() {
-		swap1.setObject(null);
-		swap2.setObject(null);
-	}
-	
+    ObjectLabel<LevelData> swap1 = new ObjectLabel<>();
+    ObjectLabel<LevelData> swap2 = new ObjectLabel<>();
+
+    public LevelSwapActor(PackageEditorState editor) {
+        super(editor);
+        initializeGui();
+    }
+
+    @Override
+    protected void initializeGui() {
+        getGui().addChild(new Label("Swap"));
+        getGui().addChild(swap1);
+        getGui().addChild(new Label("with"));
+        getGui().addChild(swap2);
+        getGui().addChild(new Button("Swap")).addClickCommands((source) -> {
+            if (swap1.getObject() != null && swap2.getObject() != null) {
+                swapLevels(swap1.getObject(), swap2.getObject());
+                getEditor().closeActor();
+            }
+        });
+        getGui().addChild(new Button("Cancel")).addClickCommands((source) -> {
+            getEditor().closeActor();
+        });
+    }
+
+    @Override
+    protected void onLevelSelected(LevelData level) {
+        if (swap1.getObject() == null) {
+            swap1.setObject(level);
+        } else if (swap2.getObject() == null && swap1.getObject() != level) {
+            swap2.setObject(level);
+        }
+    }
+
+    @Override
+    protected void close() {
+        clearLevelsSwapping();
+    }
+
+    private void swapLevels(LevelData l1, LevelData l2) {
+        if (l1 == null || l2 == null || l1 == l2) {
+            return;
+        }
+        int i1 = getEditor().getLevels().getModel().indexOf(l1);
+        int i2 = getEditor().getLevels().getModel().indexOf(l2);
+        if (i1 < 0 || i2 < 0) {
+            return;
+        }
+        if (i1 < i2) {
+            moveLevel(l1, i2);
+            moveLevel(l2, i1);
+        } else {
+            moveLevel(l2, i1);
+            moveLevel(l1, i2);
+        }
+    }
+
+    private void moveLevel(LevelData level, int index) {
+        getEditor().getLevels().getModel().remove(level);
+        getEditor().getLevels().getModel().add(index, level);
+    }
+
+    private void clearLevelsSwapping() {
+        swap1.setObject(null);
+        swap2.setObject(null);
+    }
+
 }

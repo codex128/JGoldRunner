@@ -30,27 +30,29 @@ import java.awt.Point;
  * @author gary
  */
 public class BackgroundElement {
-	
-	String model;
-	Point index;
-	
-	public BackgroundElement(String model, Point index) {
-		this.model = model;
-		this.index = index;
-	}
-	
-	public String getModel() {
-		return model;
-	}
-	public Point getIndex() {
-		return index;
-	}
-	
-	public void setModel(String model) {
-		this.model = model;
-	}
-	public void setIndex(Point index) {
-		this.index = index;
-	}
-	
+
+    String model;
+    Point index;
+
+    public BackgroundElement(String model, Point index) {
+        this.model = model;
+        this.index = index;
+    }
+
+    public String getModel() {
+        return model;
+    }
+
+    public Point getIndex() {
+        return index;
+    }
+
+    public void setModel(String model) {
+        this.model = model;
+    }
+
+    public void setIndex(Point index) {
+        this.index = index;
+    }
+
 }

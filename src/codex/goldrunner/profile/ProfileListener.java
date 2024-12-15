@@ -28,9 +28,14 @@ package codex.goldrunner.profile;
  * @author gary
  */
 public interface ProfileListener {
-	
-	public default void onCurrentProfileChange(Profile current) {}
-	public default void onProfileAdded(Profile profile) {}
-	public default void onProfileDeleted(Profile profile) {}
-	
+
+    public default void onCurrentProfileChange(Profile current) {
+    }
+
+    public default void onProfileAdded(Profile profile) {
+    }
+
+    public default void onProfileDeleted(Profile profile) {
+    }
+
 }

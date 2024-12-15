@@ -32,30 +32,33 @@ import java.awt.Point;
  */
 public class PointProcessor implements J3mapPropertyProcessor<Point> {
 
-	@Override
-	public String getPropertyIdentifier() {
-		return "Point";
-	}
-	@Override
-	public Class<Point> type() {
-		return Point.class;
-	}
-	@Override
-	public Point process(String str) {
-		if (!str.startsWith(getPropertyIdentifier()+"(") || !str.endsWith(")")) {
-			return null;
-		}
-		String[] args = str.substring(getPropertyIdentifier().length()+1,
-				str.length()-1).split(",");
-		int i = 0;
-		for (String arg : args) {
-			args[i++] = arg.trim();
-		}
-		return new Point(Integer.parseInt(args[0]), Integer.parseInt(args[1]));
-	}
-	@Override
-	public String[] export(Point property) {
-		return new String[] {getPropertyIdentifier()+"("+property.x+","+property.y+")"};
-	}
-	
+    @Override
+    public String getPropertyIdentifier() {
+        return "Point";
+    }
+
+    @Override
+    public Class<Point> type() {
+        return Point.class;
+    }
+
+    @Override
+    public Point process(String str) {
+        if (!str.startsWith(getPropertyIdentifier() + "(") || !str.endsWith(")")) {
+            return null;
+        }
+        String[] args = str.substring(getPropertyIdentifier().length() + 1,
+                str.length() - 1).split(",");
+        int i = 0;
+        for (String arg : args) {
+            args[i++] = arg.trim();
+        }
+        return new Point(Integer.parseInt(args[0]), Integer.parseInt(args[1]));
+    }
+
+    @Override
+    public String[] export(Point property) {
+        return new String[]{getPropertyIdentifier() + "(" + property.x + "," + property.y + ")"};
+    }
+
 }

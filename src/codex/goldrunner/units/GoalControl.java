@@ -13,25 +13,27 @@ import java.awt.Point;
  * @author gary
  */
 public class GoalControl extends UnitControl {
-	
-	
-	public GoalControl() {}
-	public GoalControl(LevelState level, Index3i index) {
-		super(level, index);
-	}
-	
-	@Override
-	public boolean goal() {
-		return true;
-	}
-	
-	@Override
-	public String[] types() {
-		return new String[]{"goal"};
-	}
-	@Override
-	public UnitControl loadControl(String type, LevelState level, Index3i index) {
-		return new GoalControl(level, index);
-	}
-	
+
+    public GoalControl() {
+    }
+
+    public GoalControl(LevelState level, Index3i index) {
+        super(level, index);
+    }
+
+    @Override
+    public boolean goal() {
+        return true;
+    }
+
+    @Override
+    public String[] types() {
+        return new String[]{"goal"};
+    }
+
+    @Override
+    public UnitControl loadControl(String type, LevelState level, Index3i index) {
+        return new GoalControl(level, index);
+    }
+
 }

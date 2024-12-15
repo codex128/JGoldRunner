@@ -9,16 +9,18 @@ package codex.goldrunner.util;
  * @author gary
  */
 public class SnowflakeFactory {
-	
-	private long id = 0;
-	
-	public SnowflakeFactory() {}
-	public SnowflakeFactory(long id) {
-		this.id = id;
-	}
-	
-	public long getNextId() {
-		return id++;
-	}
-	
+
+    private long id = 0;
+
+    public SnowflakeFactory() {
+    }
+
+    public SnowflakeFactory(long id) {
+        this.id = id;
+    }
+
+    public long getNextId() {
+        return id++;
+    }
+
 }

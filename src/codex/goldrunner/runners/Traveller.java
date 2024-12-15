@@ -12,15 +12,19 @@ import com.jme3.bounding.BoundingVolume;
  * @author gary
  */
 public interface Traveller {
-	
-	public abstract UnitControl getOccupied();
-	public default boolean fallThroughHoles() {
-		return false;
-	}
-	public default boolean fallThroughPlatforms() {
-		return true;
-	}
-	public abstract boolean kill();
-	public abstract BoundingVolume getWorldBound();
-	
+
+    public abstract UnitControl getOccupied();
+
+    public default boolean fallThroughHoles() {
+        return false;
+    }
+
+    public default boolean fallThroughPlatforms() {
+        return true;
+    }
+
+    public abstract boolean kill();
+
+    public abstract BoundingVolume getWorldBound();
+
 }

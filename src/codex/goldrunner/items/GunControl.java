@@ -33,28 +33,32 @@ import com.jme3.scene.Spatial;
 
 /**
  * Controls guns.
- * 
+ *
  * Does not have anything to do with the political thingy.
- * 
+ *
  * @author gary
  */
 public class GunControl extends ItemControl implements UnitLoader {
 
-	@Override
-	public String[] types() {
-		return new String[]{"gun"};
-	}
-	@Override
-	public Spatial loadSpatial(String type, boolean editor, AssetManager assets) {
-		return new Node();
-	}
-	@Override
-	public UnitControl loadControl(String type, LevelState level, Index3i index) {
-		return new UnitControl(level, index) {};
-	}
-	@Override
-	public ItemControl createItem(String type, ItemCarrier wrapper, AssetManager assets) {
-		return new GunControl();
-	}
-	
+    @Override
+    public String[] types() {
+        return new String[]{"gun"};
+    }
+
+    @Override
+    public Spatial loadSpatial(String type, boolean editor, AssetManager assets) {
+        return new Node();
+    }
+
+    @Override
+    public UnitControl loadControl(String type, LevelState level, Index3i index) {
+        return new UnitControl(level, index) {
+        };
+    }
+
+    @Override
+    public ItemControl createItem(String type, ItemCarrier wrapper, AssetManager assets) {
+        return new GunControl();
+    }
+
 }

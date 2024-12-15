@@ -35,54 +35,64 @@ import com.jme3.scene.Spatial;
  * @author gary
  */
 public class TrackerLight extends SpotLight {
-	
-	Spatial spatial;
-	Vector3f track = new Vector3f();
-	float lag = 0f;
-	boolean wander = false;
-	FDomain wanderX = new FDomain(0f, 20f);
-	FDomain wanderY = new FDomain(0f, 20f);
-	
-	public TrackerLight() {
-		super();
-	}
-	public TrackerLight(Vector3f position) {
-		super(position, new Vector3f(0f, 0f, 1f));
-	}
-	public TrackerLight(Vector3f position, ColorRGBA color) {
-		super(position, new Vector3f(0f, 0f, 1f), color);
-	}
-	public TrackerLight(Vector3f position, Vector3f direction) {
-		super(position, direction);
-	}
-	public TrackerLight(Vector3f position, Vector3f direction, ColorRGBA color) {
-		super(position, direction, color);
-	}
-	
-	public void updateDirection(float tpf) {
-		if (spatial == null) return;
-		//track.addLocal(lerp(track, getIdealTrackingLocation(), lag));
-		track.set(getIdealTrackingLocation());
-		setDirection(track.subtract(getPosition()).normalizeLocal());
-	}
-	private Vector3f lerp(Vector3f vec, Vector3f target, float scalar) {
-		return target.subtract(vec).multLocal(scalar);
-	}
-	
-	public void track(Spatial spatial) {
-		this.spatial = spatial;
-		if (this.spatial != null) {
-			track.set(getIdealTrackingLocation());
-		}
-	}
-	public Spatial getSpatialTracking() {
-		return spatial;
-	}
-	public Vector3f getCurrentTrackingLocation() {
-		return track;
-	}
-	public Vector3f getIdealTrackingLocation() {
-		return spatial.getWorldTranslation();
-	}
-	
+
+    Spatial spatial;
+    Vector3f track = new Vector3f();
+    float lag = 0f;
+    boolean wander = false;
+    FDomain wanderX = new FDomain(0f, 20f);
+    FDomain wanderY = new FDomain(0f, 20f);
+
+    public TrackerLight() {
+        super();
+    }
+
+    public TrackerLight(Vector3f position) {
+        super(position, new Vector3f(0f, 0f, 1f));
+    }
+
+    public TrackerLight(Vector3f position, ColorRGBA color) {
+        super(position, new Vector3f(0f, 0f, 1f), color);
+    }
+
+    public TrackerLight(Vector3f position, Vector3f direction) {
+        super(position, direction);
+    }
+
+    public TrackerLight(Vector3f position, Vector3f direction, ColorRGBA color) {
+        super(position, direction, color);
+    }
+
+    public void updateDirection(float tpf) {
+        if (spatial == null) {
+            return;
+        }
+        //track.addLocal(lerp(track, getIdealTrackingLocation(), lag));
+        track.set(getIdealTrackingLocation());
+        setDirection(track.subtract(getPosition()).normalizeLocal());
+    }
+
+    private Vector3f lerp(Vector3f vec, Vector3f target, float scalar) {
+        return target.subtract(vec).multLocal(scalar);
+    }
+
+    public void track(Spatial spatial) {
+        this.spatial = spatial;
+        if (this.spatial != null) {
+            track.set(getIdealTrackingLocation());
+        }
+    }
+
+    public Spatial getSpatialTracking() {
+        return spatial;
+    }
+
+    public Vector3f getCurrentTrackingLocation() {
+        return track;
+    }
+
+    public Vector3f getIdealTrackingLocation() {
+        return spatial.getWorldTranslation();
+    }
+
 }

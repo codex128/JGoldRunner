@@ -20,48 +20,53 @@ import com.jme3.scene.shape.Box;
  * @author gary
  */
 public class PlatformControl extends UnitControl {
-	
-	public PlatformControl() {}
-	public PlatformControl(LevelState level, Index3i index) {
-		super(level, index);
-	}
-	
-	@Override
-	public boolean enter(Traveller travel, boolean force) {
-		return travel.fallThroughPlatforms() || force;
-	}
-	@Override
-	public boolean stand(Traveller travel) {
-		return !travel.fallThroughPlatforms();
-	}
-	@Override
-	public boolean physical() {
-		return true;
-	}
-	
-	@Override
-	public String[] types() {
-		return new String[]{"platform"};
-	}
-	@Override
-	public Spatial loadSpatial(String type, boolean editor, AssetManager assets) {
-		if (editor) {
-			Geometry g = new Geometry("extra", new Box(.4f, .4f, .4f));
-			Material m = new Material(assets, "Common/MatDefs/Misc/Unshaded.j3md");
-			m.setColor("Color", ColorRGBA.DarkGray);
-			g.setMaterial(m);
-			Node n = new Node();
-			n.attachChild(g);
-			n.attachChild(loadSpatial(type, false, assets));
-			return n;
-		}
-		else {
-			return assets.loadModel("Models/units/platform.j3o");
-		}
-	}
-	@Override
-	public UnitControl loadControl(String type, LevelState level, Index3i index) {
-		return new PlatformControl(level, index);
-	}
-	
+
+    public PlatformControl() {
+    }
+
+    public PlatformControl(LevelState level, Index3i index) {
+        super(level, index);
+    }
+
+    @Override
+    public boolean enter(Traveller travel, boolean force) {
+        return travel.fallThroughPlatforms() || force;
+    }
+
+    @Override
+    public boolean stand(Traveller travel) {
+        return !travel.fallThroughPlatforms();
+    }
+
+    @Override
+    public boolean physical() {
+        return true;
+    }
+
+    @Override
+    public String[] types() {
+        return new String[]{"platform"};
+    }
+
+    @Override
+    public Spatial loadSpatial(String type, boolean editor, AssetManager assets) {
+        if (editor) {
+            Geometry g = new Geometry("extra", new Box(.4f, .4f, .4f));
+            Material m = new Material(assets, "Common/MatDefs/Misc/Unshaded.j3md");
+            m.setColor("Color", ColorRGBA.DarkGray);
+            g.setMaterial(m);
+            Node n = new Node();
+            n.attachChild(g);
+            n.attachChild(loadSpatial(type, false, assets));
+            return n;
+        } else {
+            return assets.loadModel("Models/units/platform.j3o");
+        }
+    }
+
+    @Override
+    public UnitControl loadControl(String type, LevelState level, Index3i index) {
+        return new PlatformControl(level, index);
+    }
+
 }

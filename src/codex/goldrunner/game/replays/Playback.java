@@ -33,17 +33,18 @@ import java.util.LinkedList;
  * @author gary
  */
 public class Playback {
-	
-	LinkedList<PlaybackThread> threads = new LinkedList<>();
-	
-	public Playback() {}
-	
-	public void load(LevelState level, J3map source) {
-		source.forEachType(J3map.class, (map) -> {
-			map.onPropertyExists("playback", KeyFrame[].class, (array) -> {
-				
-			});
-		});
-	}
-	
+
+    LinkedList<PlaybackThread> threads = new LinkedList<>();
+
+    public Playback() {
+    }
+
+    public void load(LevelState level, J3map source) {
+        source.forEachType(J3map.class, (map) -> {
+            map.onPropertyExists("playback", KeyFrame[].class, (array) -> {
+
+            });
+        });
+    }
+
 }

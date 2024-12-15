@@ -46,84 +46,90 @@ import java.awt.Point;
  * @author gary
  */
 public class Slot implements ItemCarrier {
-	
-	public static final String
-			INDEX_X = "index_x",
-			INDEX_Y = "index_y";
-	private static final String
-			UNIT = "unit spatial",
-			BACKGROUND = "background spatial";
-	
-	AssetManager assets;
-	Point index;
-	Node n = new Node("[master]");
-	Unit unit;
-	BackgroundElement background;
-	
-	Slot(AssetManager assets, MouseListener listener, Point index) {
-		this.assets = assets;
-		this.index = index;
-		n.addControl(new MouseEventControl(listener));
-		n.setUserData(INDEX_X, index.x);
-		n.setUserData(INDEX_Y, index.y);
-		loadVisualBoundaries();
-	}
-	
-	private void loadVisualBoundaries() {
-		Geometry g = new Geometry("boundaries", new Quad(1f, 1f));
-		g.setLocalTranslation(0, 0, -10f);
-		Material m = new Material(assets, "Common/MatDefs/Misc/Unshaded.j3md");
-		m.setColor("Color", ColorRGBA.Blue);
-		m.getAdditionalRenderState().setWireframe(true);
-		g.setMaterial(m);
-		n.attachChild(g);
-	}	
-	
-	public void setUnit(Unit unit) {
-		n.detachChildNamed(UNIT);
-		this.unit = unit;
-		if (this.unit != null) {
-			Node wrapper = new Node(UNIT);
-			UnitLoader loader = LevelState.getUnitLoader(this.unit.getKey());
-			Spatial u = loader.loadSpatial(this.unit.getKey(), true, assets);
-			if (u != null) {
-				wrapper.attachChild(u);
-			}
-			RunnerControl runner = loader.spawn(this.unit.getKey(), true, null, assets);
-			if (runner != null) {
-				wrapper.attachChild(runner.getSpatial());
-			}
-			ItemControl item = loader.createEditorItem(this.unit.getKey(), this, assets);
-			if (item != null) {
-				wrapper.attachChild(item.getSpatial());
-			}
-			n.attachChild(wrapper);
-		}
-	}
-	
-	public Unit getUnit() {
-		return unit;
-	}
-	public BackgroundElement getBackgroundElement() {
-		return background;
-	}
-	public Node getMasterNode() {
-		return n;
-	}
-	public Vector3f getLocation() {
-		return n.getLocalTranslation();
-	}
-	public Point getIndex() {
-		return index;
-	}
 
-	@Override
-	public ItemControl getItem() {
-		return null;
-	}
-	@Override
-	public void acceptItem(ItemControl item) {}
-	@Override
-	public void releaseItem() {}
-	
+    public static final String INDEX_X = "index_x",
+            INDEX_Y = "index_y";
+    private static final String UNIT = "unit spatial",
+            BACKGROUND = "background spatial";
+
+    AssetManager assets;
+    Point index;
+    Node n = new Node("[master]");
+    Unit unit;
+    BackgroundElement background;
+
+    Slot(AssetManager assets, MouseListener listener, Point index) {
+        this.assets = assets;
+        this.index = index;
+        n.addControl(new MouseEventControl(listener));
+        n.setUserData(INDEX_X, index.x);
+        n.setUserData(INDEX_Y, index.y);
+        loadVisualBoundaries();
+    }
+
+    private void loadVisualBoundaries() {
+        Geometry g = new Geometry("boundaries", new Quad(1f, 1f));
+        g.setLocalTranslation(-0.5f, -0.5f, -10f);
+        Material m = new Material(assets, "Common/MatDefs/Misc/Unshaded.j3md");
+        m.setColor("Color", ColorRGBA.Blue);
+        m.getAdditionalRenderState().setWireframe(true);
+        g.setMaterial(m);
+        n.attachChild(g);
+    }
+
+    public void setUnit(Unit unit) {
+        n.detachChildNamed(UNIT);
+        this.unit = unit;
+        if (this.unit != null) {
+            Node wrapper = new Node(UNIT);
+            UnitLoader loader = LevelState.getUnitLoader(this.unit.getKey());
+            Spatial u = loader.loadSpatial(this.unit.getKey(), true, assets);
+            if (u != null) {
+                wrapper.attachChild(u);
+            }
+            RunnerControl runner = loader.spawn(this.unit.getKey(), true, null, assets);
+            if (runner != null) {
+                wrapper.attachChild(runner.getSpatial());
+            }
+            ItemControl item = loader.createEditorItem(this.unit.getKey(), this, assets);
+            if (item != null) {
+                wrapper.attachChild(item.getSpatial());
+            }
+            n.attachChild(wrapper);
+        }
+    }
+
+    public Unit getUnit() {
+        return unit;
+    }
+
+    public BackgroundElement getBackgroundElement() {
+        return background;
+    }
+
+    public Node getMasterNode() {
+        return n;
+    }
+
+    public Vector3f getLocation() {
+        return n.getLocalTranslation();
+    }
+
+    public Point getIndex() {
+        return index;
+    }
+
+    @Override
+    public ItemControl getItem() {
+        return null;
+    }
+
+    @Override
+    public void acceptItem(ItemControl item) {
+    }
+
+    @Override
+    public void releaseItem() {
+    }
+
 }

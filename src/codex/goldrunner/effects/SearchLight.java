@@ -31,20 +31,21 @@ import com.jme3.math.Vector3f;
  * @author gary
  */
 public class SearchLight extends SpotLight {
-	
-	Vector3f lookat;
-	
-	public SearchLight(Vector3f position, Vector3f lookat) {
-		super(position, new Vector3f());
-		lookAt(lookat);
-	}
-	
-	public Vector3f lookAt(Vector3f lookat) {
-		setDirection(getDirectionTo(getPosition(), lookat));
-		return getDirection();
-	}
-	public static Vector3f getDirectionTo(Vector3f here, Vector3f lookat) {
-		return lookat.subtract(here).normalizeLocal();
-	}
-	
+
+    Vector3f lookat;
+
+    public SearchLight(Vector3f position, Vector3f lookat) {
+        super(position, new Vector3f());
+        lookAt(lookat);
+    }
+
+    public Vector3f lookAt(Vector3f lookat) {
+        setDirection(getDirectionTo(getPosition(), lookat));
+        return getDirection();
+    }
+
+    public static Vector3f getDirectionTo(Vector3f here, Vector3f lookat) {
+        return lookat.subtract(here).normalizeLocal();
+    }
+
 }

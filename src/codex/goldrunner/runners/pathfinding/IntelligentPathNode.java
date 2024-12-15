@@ -32,32 +32,40 @@ import java.util.LinkedList;
  * @author gary
  */
 public class IntelligentPathNode extends PathNode {
-	
-	public IntelligentPathNode(Pathfinder master, RunnerControl find, UnitControl unit) {
-		super(master, find, unit);
-	}
-	protected IntelligentPathNode(Pathfinder master, PathNode parent, RunnerControl find, UnitControl unit) {
-		super(master, parent, find, unit);
-	}
-	
-	@Override
-	protected IntelligentPathNode createPathNode(PathNode parent, RunnerControl find, UnitControl unit) {
-		return new IntelligentPathNode(getMasterPathfinder(), parent, find, unit);
-	}	
-	@Override
-	public TraversalStepReport traverse(LinkedList<UnitControl> visited) {
-		if (unit == null) return null;
-		LinkedList<PathNode> created = new LinkedList<>();
-		TraversalStepReport rep;
-		for (int i : UnitControl.getVerticleDirections()) {
-			rep = probeVerticle(visited, created, unit, i);
-			if (rep != null) return rep;
-		}		
-		for (int i : UnitControl.getHorizontalDirections()) {
-			rep = probeHorizontal(visited, created, unit, i);
-			if (rep != null) return rep;
-		}
-		return new TraversalStepReport(null, created);
-	}
-	
+
+    public IntelligentPathNode(Pathfinder master, RunnerControl find, UnitControl unit) {
+        super(master, find, unit);
+    }
+
+    protected IntelligentPathNode(Pathfinder master, PathNode parent, RunnerControl find, UnitControl unit) {
+        super(master, parent, find, unit);
+    }
+
+    @Override
+    protected IntelligentPathNode createPathNode(PathNode parent, RunnerControl find, UnitControl unit) {
+        return new IntelligentPathNode(getMasterPathfinder(), parent, find, unit);
+    }
+
+    @Override
+    public TraversalStepReport traverse(LinkedList<UnitControl> visited) {
+        if (unit == null) {
+            return null;
+        }
+        LinkedList<PathNode> created = new LinkedList<>();
+        TraversalStepReport rep;
+        for (int i : UnitControl.getVerticleDirections()) {
+            rep = probeVerticle(visited, created, unit, i);
+            if (rep != null) {
+                return rep;
+            }
+        }
+        for (int i : UnitControl.getHorizontalDirections()) {
+            rep = probeHorizontal(visited, created, unit, i);
+            if (rep != null) {
+                return rep;
+            }
+        }
+        return new TraversalStepReport(null, created);
+    }
+
 }

@@ -11,8 +11,9 @@ import codex.goldrunner.game.management.LevelData;
  * @author gary
  */
 public interface EditorClient {
-	
-	public abstract void saveNewLevelData(LevelData data);
-	public abstract void onExit();
-	
+
+    public abstract void saveNewLevelData(LevelData data);
+
+    public abstract void onExit();
+
 }

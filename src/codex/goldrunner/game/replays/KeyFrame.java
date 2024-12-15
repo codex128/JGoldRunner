@@ -28,20 +28,21 @@ package codex.goldrunner.game.replays;
  * @author gary
  */
 public class KeyFrame {
-	
-	String action;
-	float time;
-	
-	public KeyFrame(String action, float time) {
-		this.action = action;
-		this.time = time;
-	}
-	
-	public String getAction() {
-		return action;
-	}
-	public float getExecutionTime() {
-		return time;
-	}
-	
+
+    String action;
+    float time;
+
+    public KeyFrame(String action, float time) {
+        this.action = action;
+        this.time = time;
+    }
+
+    public String getAction() {
+        return action;
+    }
+
+    public float getExecutionTime() {
+        return time;
+    }
+
 }

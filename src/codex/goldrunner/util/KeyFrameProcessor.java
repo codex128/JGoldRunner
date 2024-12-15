@@ -32,32 +32,36 @@ import codex.j3map.processors.J3mapPropertyProcessor;
  */
 public class KeyFrameProcessor implements J3mapPropertyProcessor<KeyFrame> {
 
-	@Override
-	public Class<KeyFrame> type() {
-		return KeyFrame.class;
-	}
-	@Override
-	public KeyFrame process(String str) {
-		if (!str.startsWith(getPropertyIdentifier()+"(") || !str.endsWith(")")) {
-			return null;
-		}
-		String[] args = str.substring(getPropertyIdentifier().length()+1,
-				str.length()-1).split(",");
-		String action = args[0].trim();
-		float time = Float.parseFloat(args[1].trim());
-		return new KeyFrame(action, time);
-	}
-	@Override
-	public String[] export(KeyFrame property) {
-		return new String[] {getPropertyIdentifier()+"("+property.getAction()+","+property.getExecutionTime()+")"};
-	}
-	@Override
-	public String getPropertyIdentifier() {
-		return "KeyFrame";
-	}
-	@Override
-	public KeyFrame[] createArray(int length) {
-		return new KeyFrame[length];
-	}
-	
+    @Override
+    public Class<KeyFrame> type() {
+        return KeyFrame.class;
+    }
+
+    @Override
+    public KeyFrame process(String str) {
+        if (!str.startsWith(getPropertyIdentifier() + "(") || !str.endsWith(")")) {
+            return null;
+        }
+        String[] args = str.substring(getPropertyIdentifier().length() + 1,
+                str.length() - 1).split(",");
+        String action = args[0].trim();
+        float time = Float.parseFloat(args[1].trim());
+        return new KeyFrame(action, time);
+    }
+
+    @Override
+    public String[] export(KeyFrame property) {
+        return new String[]{getPropertyIdentifier() + "(" + property.getAction() + "," + property.getExecutionTime() + ")"};
+    }
+
+    @Override
+    public String getPropertyIdentifier() {
+        return "KeyFrame";
+    }
+
+    @Override
+    public KeyFrame[] createArray(int length) {
+        return new KeyFrame[length];
+    }
+
 }

@@ -16,9 +16,9 @@ import java.io.IOException;
  */
 public class J3mapLoader implements AssetLoader {
 
-	@Override
-	public Object load(AssetInfo assetInfo) throws IOException {
-		return new J3map(assetInfo.openStream());
-	}
-	
+    @Override
+    public Object load(AssetInfo assetInfo) throws IOException {
+        return new J3map(assetInfo.openStream());
+    }
+
 }

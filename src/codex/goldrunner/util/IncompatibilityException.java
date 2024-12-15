@@ -27,8 +27,9 @@ package codex.goldrunner.util;
  *
  * @author gary
  */
-public class IncompatibilityException extends NullPointerException {	
-	public IncompatibilityException(String reason) {
-		super(reason);
-	}	
+public class IncompatibilityException extends NullPointerException {
+
+    public IncompatibilityException(String reason) {
+        super(reason);
+    }
 }

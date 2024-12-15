@@ -18,18 +18,23 @@ import codex.goldrunner.util.Index3i;
  * @author gary
  */
 public interface UnitLoader {
-	
-	public abstract String[] types();
-	public abstract Spatial loadSpatial(String type, boolean editor, AssetManager assets);
-	public abstract UnitControl loadControl(String type, LevelState level, Index3i index);
-	public default RunnerControl spawn(String type, boolean editor, UnitControl wrapper, AssetManager assets) {
-		return null;
-	}
-	public default ItemControl createItem(String type, ItemCarrier wrapper, AssetManager assets) {
-		return null;
-	}
-	public default ItemControl createEditorItem(String type, ItemCarrier wrapper, AssetManager assets) {
-		return createItem(type, wrapper, assets);
-	}
-	
+
+    public abstract String[] types();
+
+    public abstract Spatial loadSpatial(String type, boolean editor, AssetManager assets);
+
+    public abstract UnitControl loadControl(String type, LevelState level, Index3i index);
+
+    public default RunnerControl spawn(String type, boolean editor, UnitControl wrapper, AssetManager assets) {
+        return null;
+    }
+
+    public default ItemControl createItem(String type, ItemCarrier wrapper, AssetManager assets) {
+        return null;
+    }
+
+    public default ItemControl createEditorItem(String type, ItemCarrier wrapper, AssetManager assets) {
+        return createItem(type, wrapper, assets);
+    }
+
 }

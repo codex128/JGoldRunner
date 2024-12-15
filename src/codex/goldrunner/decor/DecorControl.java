@@ -33,29 +33,30 @@ import com.jme3.bullet.objects.PhysicsRigidBody;
  * @author gary
  */
 public class DecorControl extends RigidBodyControl {
-	
-	PhysicsSpace space;
-	UnitControl attach;
-	float mass;
-	boolean physicsActivated = false;
-	
-	public DecorControl(UnitControl attach, float mass) {
-		super(mass);
-		this.attach = attach;
-	}
-	
-	@Override
-	public void update(float tpf) {
-		if (!isSolid()) {
-			activatePhysics();
-		}
-	}
-	
-	public boolean isSolid() {
-		return attach == null || attach.solid();
-	}
-	private void activatePhysics() {
-		space.add(this);
-	}
-	
+
+    PhysicsSpace space;
+    UnitControl attach;
+    float mass;
+    boolean physicsActivated = false;
+
+    public DecorControl(UnitControl attach, float mass) {
+        super(mass);
+        this.attach = attach;
+    }
+
+    @Override
+    public void update(float tpf) {
+        if (!isSolid()) {
+            activatePhysics();
+        }
+    }
+
+    public boolean isSolid() {
+        return attach == null || attach.solid();
+    }
+
+    private void activatePhysics() {
+        space.add(this);
+    }
+
 }

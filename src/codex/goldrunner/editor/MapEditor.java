@@ -35,41 +35,50 @@ import com.simsilica.lemur.event.MouseListener;
  * @author gary
  */
 public abstract class MapEditor implements MouseListener {
-	
-	LevelEditorState editor;
-	AssetManager assets;
-	J3map selections;
-	Container tools = new Container("editor tools");
-	
-	public MapEditor(LevelEditorState editor) {
-		this.editor = editor;
-		assets = this.editor.getApplication().getAssetManager();
-		selections = J3map.openJ3map(assets.loadAsset("Interface/selections.j3map"));
-	}
-	
-	protected LevelEditorState getEditor() {
-		return editor;
-	}
-	protected AssetManager getAssets() {
-		return assets;
-	}
-	protected J3map getSelectionSource() {
-		return selections;
-	}
-	protected Slot[][] getSlots() {
-		return editor.getSlots();
-	}
-	protected Container getToolsGui() {
-		return tools;
-	}
-	
-	protected abstract void initialize();
-	protected abstract void onEnable();
-	protected abstract void onDisable();
-	
-	@Override
-	public void mouseExited(MouseMotionEvent mme, Spatial sptl, Spatial sptl1) {}
-	@Override
-	public void mouseMoved(MouseMotionEvent mme, Spatial sptl, Spatial sptl1) {}
-	
+
+    LevelEditorState editor;
+    AssetManager assets;
+    J3map selections;
+    Container tools = new Container("editor tools");
+
+    public MapEditor(LevelEditorState editor) {
+        this.editor = editor;
+        assets = this.editor.getApplication().getAssetManager();
+        selections = J3map.openJ3map(assets.loadAsset("Interface/selections.j3map"));
+    }
+
+    protected LevelEditorState getEditor() {
+        return editor;
+    }
+
+    protected AssetManager getAssets() {
+        return assets;
+    }
+
+    protected J3map getSelectionSource() {
+        return selections;
+    }
+
+    protected Slot[][] getSlots() {
+        return editor.getSlots();
+    }
+
+    protected Container getToolsGui() {
+        return tools;
+    }
+
+    protected abstract void initialize();
+
+    protected abstract void onEnable();
+
+    protected abstract void onDisable();
+
+    @Override
+    public void mouseExited(MouseMotionEvent mme, Spatial sptl, Spatial sptl1) {
+    }
+
+    @Override
+    public void mouseMoved(MouseMotionEvent mme, Spatial sptl, Spatial sptl1) {
+    }
+
 }

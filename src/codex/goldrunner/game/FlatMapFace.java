@@ -31,36 +31,38 @@ import codex.j3map.J3map;
  * @author gary
  */
 public class FlatMapFace extends MapFace {
-	
-	int verticalIndex;
-	
-	public FlatMapFace(LevelState level, int index, int verticleIndex) {
-		super(level, index);
-		this.verticalIndex = verticleIndex;
-	}
-	
-	@Override
-	public UnitControl[][] generateMap(String[] mapData) {
-		return new UnitControl[mapData.length][mapData[0].length()];
-	}
-	@Override
-	public boolean load(String[] mapData, J3map cipher) {
-		map = generateMap(mapData);
-		for (int i = 0; i < mapData.length; i++) {
-			for (int j = 0; j < mapData[i].length(); j++) {
-				String key = cipher.getString(""+mapData[i].charAt(j));
-				level.loadUnit(key, index, j, i);
-			}
-		}
-		return false;
-	}
-	
-	@Override
-	public boolean isGravityInfluenced() {
-		return false;
-	}
-	public int getVerticalIndex() {
-		return verticalIndex;
-	}
-	
+
+    int verticalIndex;
+
+    public FlatMapFace(LevelState level, int index, int verticleIndex) {
+        super(level, index);
+        this.verticalIndex = verticleIndex;
+    }
+
+    @Override
+    public UnitControl[][] generateMap(String[] mapData) {
+        return new UnitControl[mapData.length][mapData[0].length()];
+    }
+
+    @Override
+    public boolean load(String[] mapData, J3map cipher) {
+        map = generateMap(mapData);
+        for (int i = 0; i < mapData.length; i++) {
+            for (int j = 0; j < mapData[i].length(); j++) {
+                String key = cipher.getString("" + mapData[i].charAt(j));
+                level.loadUnit(key, index, j, i);
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean isGravityInfluenced() {
+        return false;
+    }
+
+    public int getVerticalIndex() {
+        return verticalIndex;
+    }
+
 }

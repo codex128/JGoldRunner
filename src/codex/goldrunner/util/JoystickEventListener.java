@@ -36,20 +36,30 @@ import com.jme3.input.event.TouchEvent;
  * @author gary
  */
 public interface JoystickEventListener extends RawInputListener {
-	
-	// stop any unnecessary methods from being abstract
-	
-	@Override
-	public default void beginInput() {}
-	@Override
-	public default void endInput() {}
-	@Override
-	public default void onMouseMotionEvent(MouseMotionEvent evt) {}
-	@Override
-	public default void onMouseButtonEvent(MouseButtonEvent evt) {}
-	@Override
-	public default void onKeyEvent(KeyInputEvent evt) {}
-	@Override
-	public default void onTouchEvent(TouchEvent evt) {}
-	
+
+    // stop any unnecessary methods from being abstract
+    @Override
+    public default void beginInput() {
+    }
+
+    @Override
+    public default void endInput() {
+    }
+
+    @Override
+    public default void onMouseMotionEvent(MouseMotionEvent evt) {
+    }
+
+    @Override
+    public default void onMouseButtonEvent(MouseButtonEvent evt) {
+    }
+
+    @Override
+    public default void onKeyEvent(KeyInputEvent evt) {
+    }
+
+    @Override
+    public default void onTouchEvent(TouchEvent evt) {
+    }
+
 }

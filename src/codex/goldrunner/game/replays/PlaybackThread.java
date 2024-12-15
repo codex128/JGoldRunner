@@ -29,77 +29,83 @@ import java.util.LinkedList;
 
 /**
  * Contains information about a particular element in the level.
- * 
+ *
  * @author gary
  */
 public class PlaybackThread {
-	
-	PlaybackActor control;
-	LinkedList<KeyFrame> keyframes = new LinkedList<>();
-	KeyFrame next;
-	int index = 0;
-	float time = 0f;
-	
-	public PlaybackThread(PlaybackActor control, Collection<KeyFrame> keyframes) {
-		this.control = control;
-		this.keyframes.addAll(keyframes);
-		restart();
-	}
-	public PlaybackThread(PlaybackActor control, KeyFrame... keyframes) {
-		this.control = control;
-		addAll(keyframes);
-		restart();
-	}
-	
-	public void restart() {
-		if (!this.keyframes.isEmpty()) {
-			next = this.keyframes.getFirst();
-		}
-		else {
-			next = null;
-		}
-		index = 0;
-	}
-	public void update(float tpf) {
-		if (next == null) return;
-		if (time >= next.getExecutionTime()) {
-			if (control.onKeyFrameEvent(next)) {
-				index++;
-				if (index < keyframes.size()) {
-					next = keyframes.get(index);
-				}
-				else {
-					next = null;
-				}
-				time = 0f;
-				return;
-			}
-			time = next.getExecutionTime();
-			return;
-		}
-		time += tpf;
-	}
-	
-	public boolean isFinished() {
-		return next == null;
-	}	
-	public PlaybackActor getControlledActor() {
-		return control;
-	}
-	public KeyFrame getNextKeyframe() {
-		return next;
-	}
-	public int getIndexOfNextKeyframe() {
-		return index;
-	}
-	public float getTimeSinceLastKeyframe() {
-		return time;
-	}
-	
-	private void addAll(KeyFrame... keyframes) {
-		for (KeyFrame kf : keyframes) {
-			this.keyframes.addLast(kf);
-		}
-	}
-	
+
+    PlaybackActor control;
+    LinkedList<KeyFrame> keyframes = new LinkedList<>();
+    KeyFrame next;
+    int index = 0;
+    float time = 0f;
+
+    public PlaybackThread(PlaybackActor control, Collection<KeyFrame> keyframes) {
+        this.control = control;
+        this.keyframes.addAll(keyframes);
+        restart();
+    }
+
+    public PlaybackThread(PlaybackActor control, KeyFrame... keyframes) {
+        this.control = control;
+        addAll(keyframes);
+        restart();
+    }
+
+    public void restart() {
+        if (!this.keyframes.isEmpty()) {
+            next = this.keyframes.getFirst();
+        } else {
+            next = null;
+        }
+        index = 0;
+    }
+
+    public void update(float tpf) {
+        if (next == null) {
+            return;
+        }
+        if (time >= next.getExecutionTime()) {
+            if (control.onKeyFrameEvent(next)) {
+                index++;
+                if (index < keyframes.size()) {
+                    next = keyframes.get(index);
+                } else {
+                    next = null;
+                }
+                time = 0f;
+                return;
+            }
+            time = next.getExecutionTime();
+            return;
+        }
+        time += tpf;
+    }
+
+    public boolean isFinished() {
+        return next == null;
+    }
+
+    public PlaybackActor getControlledActor() {
+        return control;
+    }
+
+    public KeyFrame getNextKeyframe() {
+        return next;
+    }
+
+    public int getIndexOfNextKeyframe() {
+        return index;
+    }
+
+    public float getTimeSinceLastKeyframe() {
+        return time;
+    }
+
+    private void addAll(KeyFrame... keyframes) {
+        for (KeyFrame kf : keyframes) {
+            this.keyframes.addLast(kf);
+        }
+    }
+
 }

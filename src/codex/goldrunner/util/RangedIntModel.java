@@ -34,72 +34,85 @@ import static java.lang.Integer.min;
  * @author gary
  */
 public class RangedIntModel implements RangedValueModel {
-	
-	private long version;
-	private int value;
-	private IDomain domain;
-	
-	public RangedIntModel() {
-		this(0, 100, 0);
-	}
-	public RangedIntModel(int min, int max, int value) {
-		domain = new IDomain(min, max);
-		this.value = domain.applyConstrain(value);
-	}
-	
-	@Override
-	public void setValue(double val) {
-		value = domain.applyConstrain((int)val);
-		version++;
-	}
-	@Override
-	public double getValue() {
-		return value;
-	}
-	@Override
-	public void setPercent(double val) {
-		double range = domain.getRange();
-        double projected = domain.getMin()+range*val;
+
+    private long version;
+    private int value;
+    private IDomain domain;
+
+    public RangedIntModel() {
+        this(0, 100, 0);
+    }
+
+    public RangedIntModel(int min, int max, int value) {
+        domain = new IDomain(min, max);
+        this.value = domain.applyConstrain(value);
+    }
+
+    @Override
+    public void setValue(double val) {
+        value = domain.applyConstrain((int) val);
+        version++;
+    }
+
+    @Override
+    public double getValue() {
+        return value;
+    }
+
+    @Override
+    public void setPercent(double val) {
+        double range = domain.getRange();
+        double projected = domain.getMin() + range * val;
         setValue(projected);
-	}
-	@Override
-	public double getPercent() {
-		double range = domain.getMax()-domain.getMin();
-        if(range == 0) return 0;
-        double part = getValue()-domain.getMin();
-        return part/range;
-	}
-	@Override
-	public void setMaximum(double max) {
-		domain.setMax((int)max);
-		value = domain.applyConstrain(value);
-		version++;
-	}
-	@Override
-	public double getMaximum() {
-		return domain.getMax();
-	}
-	@Override
-	public void setMinimum(double min) {
-		domain.setMin((int)min);
-		value = domain.applyConstrain(value);
-		version++;
-	}
-	@Override
-	public double getMinimum() {
-		return domain.getMin();
-	}
-	@Override
-	public long getVersion() {
-		return version;
-	}
-	@Override
-	public Double getObject() {
-		return (double)value;
-	}
-	@Override
-	public VersionedReference<Double> createReference() {
-		return new VersionedReference<Double>(this);
-	}	
-	
+    }
+
+    @Override
+    public double getPercent() {
+        double range = domain.getMax() - domain.getMin();
+        if (range == 0) {
+            return 0;
+        }
+        double part = getValue() - domain.getMin();
+        return part / range;
+    }
+
+    @Override
+    public void setMaximum(double max) {
+        domain.setMax((int) max);
+        value = domain.applyConstrain(value);
+        version++;
+    }
+
+    @Override
+    public double getMaximum() {
+        return domain.getMax();
+    }
+
+    @Override
+    public void setMinimum(double min) {
+        domain.setMin((int) min);
+        value = domain.applyConstrain(value);
+        version++;
+    }
+
+    @Override
+    public double getMinimum() {
+        return domain.getMin();
+    }
+
+    @Override
+    public long getVersion() {
+        return version;
+    }
+
+    @Override
+    public Double getObject() {
+        return (double) value;
+    }
+
+    @Override
+    public VersionedReference<Double> createReference() {
+        return new VersionedReference<Double>(this);
+    }
+
 }

@@ -30,21 +30,24 @@ import com.simsilica.lemur.Label;
  * @author gary
  * @param <T>
  */
-public class ObjectLabel <T> extends Label {
-	
-	T object;
-	
-	public ObjectLabel() {
-		super("");
-	}
-	
-	public void setObject(T object) {
-		this.object = object;
-		if (this.object == null) return;
-		setText(this.object.toString());
-	}
-	public T getObject() {
-		return object;
-	}
-	
+public class ObjectLabel<T> extends Label {
+
+    T object;
+
+    public ObjectLabel() {
+        super("");
+    }
+
+    public void setObject(T object) {
+        this.object = object;
+        if (this.object == null) {
+            return;
+        }
+        setText(this.object.toString());
+    }
+
+    public T getObject() {
+        return object;
+    }
+
 }

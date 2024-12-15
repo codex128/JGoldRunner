@@ -28,9 +28,13 @@ package codex.goldrunner.gui;
  * @author gary
  */
 public interface DoublecheckListener {
-	
-	public abstract void onButton(DoublecheckPopup popup);
-	public default void onYesButton(DoublecheckPopup popup) {}
-	public default void onNoButton(DoublecheckPopup popup) {}
-	
+
+    public abstract void onButton(DoublecheckPopup popup);
+
+    public default void onYesButton(DoublecheckPopup popup) {
+    }
+
+    public default void onNoButton(DoublecheckPopup popup) {
+    }
+
 }

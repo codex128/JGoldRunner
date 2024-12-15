@@ -28,7 +28,7 @@ package codex.goldrunner.game.replays;
  * @author gary
  */
 public interface PlaybackActor {
-	
-	public boolean onKeyFrameEvent(KeyFrame keyframe);
-	
+
+    public boolean onKeyFrameEvent(KeyFrame keyframe);
+
 }

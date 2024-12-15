@@ -25,24 +25,25 @@ package codex.goldrunner.editor;
 
 /**
  * Contains barebones information about a unit.
- * 
+ *
  * The name corresponds with a unit loader.
- * 
+ *
  * @author gary
  */
 public class Unit {
-	
-	String key;
-	
-	Unit(String key) {
-		this.key = key;
-	}
-	
-	public String getKey() {
-		return key;
-	}
-	public void setKey(String key) {
-		this.key = key;
-	}
-	
+
+    String key;
+
+    Unit(String key) {
+        this.key = key;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public void setKey(String key) {
+        this.key = key;
+    }
+
 }

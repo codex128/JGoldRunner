@@ -36,92 +36,94 @@ import com.simsilica.lemur.ListBox;
  * @author gary
  */
 public class UnitEditor extends MapEditor {
-	
-	ListBox<UnitTypeSelection> types = new ListBox<>();
-	BoxSelector boxselect = new BoxSelector();
-	
-	public UnitEditor(LevelEditorState editor) {
-		super(editor);
-		initialize();
-	}
-	
-	@Override
-	protected void initialize() {
-		types.setVisibleItems(12);
-		boxselect.initializeBoxGeometry(getAssets(), ColorRGBA.Magenta);
-		getToolsGui().addChild(types);
-		J3map source = getSelectionSource().getJ3map("units");
-		source.forEachType(String[].class, (property) -> {
-			types.getModel().add(new UnitTypeSelection(
-					property[0], property[1], property[2]));
-		});
-	}
-	@Override
-	protected void onEnable() {
-		getEditor().getGridNode().attachChild(boxselect.getBoxGeometry());
-	}
-	@Override
-	protected void onDisable() {
-		boxselect.getBoxGeometry().removeFromParent();
-		boxselect.clear();
-	}
-	
-	@Override
-	public void mouseButtonEvent(MouseButtonEvent mbe, Spatial sptl, Spatial sptl1) {
-		if (!boxselect.active() && mbe.isPressed()) {
-			Slot slot = getEditor().getSlotBySpatial(sptl);
-			if (slot != null) {
-				boxselect.placePrimarySlot(slot);
-			}
-		}
-		else if (boxselect.active() && mbe.isReleased()) {
-			if (mbe.getButtonIndex() == MouseInput.BUTTON_LEFT &&
-					types.getSelectedItem() != null) {
-				String key = types.getSelectedItem().key;
-				if (!key.equals("hero")) {
-					boxselect.forEachContained(getSlots(), (slot) -> {
-						if (slot.getUnit() == null ||
-								!slot.getUnit().getKey().equals(key)) {
-							editor.setSlotUnit(slot, new Unit(types.getSelectedItem().key));
-						}
-					});
-				}
-				else {
-					getEditor().setHeroSlot(boxselect.getSlots()[1]);
-				}
-			}
-			else if (mbe.getButtonIndex() == MouseInput.BUTTON_RIGHT) {
-				boxselect.forEachContained(getSlots(), (slot) -> {
-					editor.setSlotUnit(slot, null);
-				});
-			}
-			boxselect.clear();
-		}
-	}
-	@Override
-	public void mouseEntered(MouseMotionEvent mme, Spatial sptl, Spatial sptl1) {
-		if (boxselect.active()) {
-			Slot slot = getEditor().getSlotBySpatial(sptl);
-			if (slot != null) {
-				boxselect.placeSecondarySlot(slot);
-			}
-		}
-	}
-	
-	
-	private static class UnitTypeSelection {
-		String name;
-		String key;
-		String character;		
-		private UnitTypeSelection(String name, String key, String character) {
-			this.name = name;
-			this.key = key;
-			this.character = character;
-		}
-		@Override
-		public String toString() {
-			return name;
-		}
-	}
-	
+
+    ListBox<UnitTypeSelection> types = new ListBox<>();
+    BoxSelector boxselect = new BoxSelector();
+
+    public UnitEditor(LevelEditorState editor) {
+        super(editor);
+        initialize();
+    }
+
+    @Override
+    protected void initialize() {
+        types.setVisibleItems(12);
+        boxselect.initializeBoxGeometry(getAssets(), ColorRGBA.Magenta);
+        getToolsGui().addChild(types);
+        J3map source = getSelectionSource().getJ3map("units");
+        source.forEachType(String[].class, (property) -> {
+            types.getModel().add(new UnitTypeSelection(
+                    property[0], property[1], property[2]));
+        });
+    }
+
+    @Override
+    protected void onEnable() {
+        getEditor().getGridNode().attachChild(boxselect.getBoxGeometry());
+    }
+
+    @Override
+    protected void onDisable() {
+        boxselect.getBoxGeometry().removeFromParent();
+        boxselect.clear();
+    }
+
+    @Override
+    public void mouseButtonEvent(MouseButtonEvent mbe, Spatial sptl, Spatial sptl1) {
+        if (!boxselect.active() && mbe.isPressed()) {
+            Slot slot = getEditor().getSlotBySpatial(sptl);
+            if (slot != null) {
+                boxselect.placePrimarySlot(slot);
+            }
+        } else if (boxselect.active() && mbe.isReleased()) {
+            if (mbe.getButtonIndex() == MouseInput.BUTTON_LEFT
+                    && types.getSelectedItem() != null) {
+                String key = types.getSelectedItem().key;
+                if (!key.equals("hero")) {
+                    boxselect.forEachContained(getSlots(), (slot) -> {
+                        if (slot.getUnit() == null
+                                || !slot.getUnit().getKey().equals(key)) {
+                            editor.setSlotUnit(slot, new Unit(types.getSelectedItem().key));
+                        }
+                    });
+                } else {
+                    getEditor().setHeroSlot(boxselect.getSlots()[1]);
+                }
+            } else if (mbe.getButtonIndex() == MouseInput.BUTTON_RIGHT) {
+                boxselect.forEachContained(getSlots(), (slot) -> {
+                    editor.setSlotUnit(slot, null);
+                });
+            }
+            boxselect.clear();
+        }
+    }
+
+    @Override
+    public void mouseEntered(MouseMotionEvent mme, Spatial sptl, Spatial sptl1) {
+        if (boxselect.active()) {
+            Slot slot = getEditor().getSlotBySpatial(sptl);
+            if (slot != null) {
+                boxselect.placeSecondarySlot(slot);
+            }
+        }
+    }
+
+    private static class UnitTypeSelection {
+
+        String name;
+        String key;
+        String character;
+
+        private UnitTypeSelection(String name, String key, String character) {
+            this.name = name;
+            this.key = key;
+            this.character = character;
+        }
+
+        @Override
+        public String toString() {
+            return name;
+        }
+    }
+
 }

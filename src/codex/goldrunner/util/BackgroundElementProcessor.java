@@ -32,42 +32,45 @@ import java.awt.Point;
  * @author gary
  */
 public class BackgroundElementProcessor implements J3mapPropertyProcessor<BackgroundElement> {
-	
-	@Override
-	public String getPropertyIdentifier() {
-		return "BackgroundElement";
-	}
-	@Override
-	public Class<BackgroundElement> type() {
-		return BackgroundElement.class;
-	}
-	@Override
-	public BackgroundElement process(String str) {
-		if (!str.startsWith(getPropertyIdentifier()+"(") || !str.endsWith(")")) {
-			return null;
-		}
-		String[] args = str.substring(
-				getPropertyIdentifier().length()+1, str.length()-1).split(",");
-		if (args.length != 3) {
-			throw new IllegalArgumentException("J3map BackgroundElement processor requires 3 arguments!");
-		}
-		int i = 0;
-		for (String arg : args) {
-			args[i++] = arg.trim();
-		}
-		String path = args[0].substring(1, args[0].length()-1);
-		int x = Integer.parseInt(args[1]);
-		int y = Integer.parseInt(args[2]);
-		return new BackgroundElement(path, new Point(x, y));
-	}
-	@Override
-	public String[] export(BackgroundElement property) {
-		return new String[] {
-			getPropertyIdentifier()+"("
-				+"\""+property.getModel()+"\","
-				+property.getIndex().x+","
-				+property.getIndex().y+")"
-		};
-	}
-	
+
+    @Override
+    public String getPropertyIdentifier() {
+        return "BackgroundElement";
+    }
+
+    @Override
+    public Class<BackgroundElement> type() {
+        return BackgroundElement.class;
+    }
+
+    @Override
+    public BackgroundElement process(String str) {
+        if (!str.startsWith(getPropertyIdentifier() + "(") || !str.endsWith(")")) {
+            return null;
+        }
+        String[] args = str.substring(
+                getPropertyIdentifier().length() + 1, str.length() - 1).split(",");
+        if (args.length != 3) {
+            throw new IllegalArgumentException("J3map BackgroundElement processor requires 3 arguments!");
+        }
+        int i = 0;
+        for (String arg : args) {
+            args[i++] = arg.trim();
+        }
+        String path = args[0].substring(1, args[0].length() - 1);
+        int x = Integer.parseInt(args[1]);
+        int y = Integer.parseInt(args[2]);
+        return new BackgroundElement(path, new Point(x, y));
+    }
+
+    @Override
+    public String[] export(BackgroundElement property) {
+        return new String[]{
+            getPropertyIdentifier() + "("
+            + "\"" + property.getModel() + "\","
+            + property.getIndex().x + ","
+            + property.getIndex().y + ")"
+        };
+    }
+
 }

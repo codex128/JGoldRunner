@@ -28,7 +28,7 @@ package codex.goldrunner.editor;
  * @author gary
  */
 public class SlotFace {
-	
-	Slot[][] slots;
-	
+
+    Slot[][] slots;
+
 }

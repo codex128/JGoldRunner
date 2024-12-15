@@ -16,45 +16,54 @@ import java.util.concurrent.ThreadLocalRandom;
  * @author gary 
  */
 public class LevelPoolGenerator extends BaseAppState {
-	
-	LevelManager lm;
-    
+
+    LevelManager lm;
+
     @Override
     protected void initialize(Application app) {
-		lm = getState(LevelManager.class);
-	}
+        lm = getState(LevelManager.class);
+    }
+
     @Override
-    protected void cleanup(Application app) {}
+    protected void cleanup(Application app) {
+    }
+
     @Override
-    protected void onEnable() {}
+    protected void onEnable() {
+    }
+
     @Override
-    protected void onDisable() {} 
+    protected void onDisable() {
+    }
+
     @Override
-    public void update(float tpf) {}
-	
-	public LevelPool generateRandomPool(int length) {
-		LevelPool pool = new LevelPool();
-		ArrayList<LevelData> available = new ArrayList<>();
-		for (LevelPackage pack : lm.getPackages()) {
-			available.addAll(pack.getLevels());
-		}
-		while (!available.isEmpty() && length != 0) {
-			pool.add(available.remove(ThreadLocalRandom.current().nextInt(available.size())));
-			length--;
-		}
-		return pool;
-	}
-	public LevelPool generateRandomPool(int length, LevelPackage... packages) {
-		LevelPool pool = new LevelPool();
-		ArrayList<LevelData> available = new ArrayList<>();
-		for (LevelPackage pack : packages) {
-			available.addAll(pack.getLevels());
-		}
-		while (!available.isEmpty() && length != 0) {
-			pool.add(available.remove(ThreadLocalRandom.current().nextInt(available.size())));
-			length--;
-		}
-		return pool;
-	}
-	
+    public void update(float tpf) {
+    }
+
+    public LevelPool generateRandomPool(int length) {
+        LevelPool pool = new LevelPool();
+        ArrayList<LevelData> available = new ArrayList<>();
+        for (LevelPackage pack : lm.getPackages()) {
+            available.addAll(pack.getLevels());
+        }
+        while (!available.isEmpty() && length != 0) {
+            pool.add(available.remove(ThreadLocalRandom.current().nextInt(available.size())));
+            length--;
+        }
+        return pool;
+    }
+
+    public LevelPool generateRandomPool(int length, LevelPackage... packages) {
+        LevelPool pool = new LevelPool();
+        ArrayList<LevelData> available = new ArrayList<>();
+        for (LevelPackage pack : packages) {
+            available.addAll(pack.getLevels());
+        }
+        while (!available.isEmpty() && length != 0) {
+            pool.add(available.remove(ThreadLocalRandom.current().nextInt(available.size())));
+            length--;
+        }
+        return pool;
+    }
+
 }

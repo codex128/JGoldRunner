@@ -17,38 +17,46 @@ import java.util.function.Consumer;
  * @author gary 
  */
 public class TransitionState extends BaseAppState implements TimerListener {
-    
-	Timer timer = new Timer(.2f);
-	Consumer<Application> between;
-	
+
+    Timer timer = new Timer(.2f);
+    Consumer<Application> between;
+
     @Override
     protected void initialize(Application app) {
-		timer.addListener(this);
-		timer.setCycleMode(Timer.CycleMode.ONCE);
-		timer.pause();
+        timer.addListener(this);
+        timer.setCycleMode(Timer.CycleMode.ONCE);
+        timer.pause();
     }
+
     @Override
-    protected void cleanup(Application app) {}
+    protected void cleanup(Application app) {
+    }
+
     @Override
-    protected void onEnable() {}
+    protected void onEnable() {
+    }
+
     @Override
-    protected void onDisable() {}
+    protected void onDisable() {
+    }
+
     @Override
     public void update(float tpf) {
-		timer.update(tpf);
-	}
-	
-	public void transition(Consumer<Application> between) {
-		this.between = between;
-		timer.reset();
-		timer.start();
-	}
-	@Override
-	public void onTimerFinish(Timer timer) {
-		if (between != null) {
-			between.accept(getApplication());
-		}
-		between = null;
-	}
-	
+        timer.update(tpf);
+    }
+
+    public void transition(Consumer<Application> between) {
+        this.between = between;
+        timer.reset();
+        timer.start();
+    }
+
+    @Override
+    public void onTimerFinish(Timer timer) {
+        if (between != null) {
+            between.accept(getApplication());
+        }
+        between = null;
+    }
+
 }

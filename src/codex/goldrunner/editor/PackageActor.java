@@ -31,24 +31,31 @@ import com.simsilica.lemur.Container;
  * @author gary
  */
 public abstract class PackageActor {
-	
-	PackageEditorState editor;
-	Container gui = new Container();
-	
-	public PackageActor(PackageEditorState editor) {
-		this.editor = editor;
-	}
-	
-	protected abstract void initializeGui();	
-	public PackageEditorState getEditor() {
-		return editor;
-	}
-	public Container getGui() {
-		return gui;
-	}
-	
-	protected void onLevelSelected(LevelData selected) {}
-	protected void open() {}
-	protected void close() {}
-	
+
+    PackageEditorState editor;
+    Container gui = new Container();
+
+    public PackageActor(PackageEditorState editor) {
+        this.editor = editor;
+    }
+
+    protected abstract void initializeGui();
+
+    public PackageEditorState getEditor() {
+        return editor;
+    }
+
+    public Container getGui() {
+        return gui;
+    }
+
+    protected void onLevelSelected(LevelData selected) {
+    }
+
+    protected void open() {
+    }
+
+    protected void close() {
+    }
+
 }

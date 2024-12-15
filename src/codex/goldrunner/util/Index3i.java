@@ -28,35 +28,38 @@ package codex.goldrunner.util;
  * @author gary
  */
 public class Index3i {
-	
-	public int x, y, z;
-	
-	public Index3i() {
-		x = y = z = 0;
-	}
-	public Index3i(Index3i index) {
-		set(index);
-	}
-	public Index3i(int x, int y, int z) {
-		set(x, y, z);
-	}
-	
-	public Index3i set(Index3i index) {
-		x = index.x;
-		y = index.y;
-		z = index.z;
-		return this;
-	}
-	public Index3i set(int x, int y, int z) {
-		this.x = x;
-		this.y = y;
-		this.z = z;
-		return this;
-	}
-	
-	@Override
-	public String toString() {
-		return "("+x+", "+y+", "+z+")";
-	}
-	
+
+    public int x, y, z;
+
+    public Index3i() {
+        x = y = z = 0;
+    }
+
+    public Index3i(Index3i index) {
+        set(index);
+    }
+
+    public Index3i(int x, int y, int z) {
+        set(x, y, z);
+    }
+
+    public Index3i set(Index3i index) {
+        x = index.x;
+        y = index.y;
+        z = index.z;
+        return this;
+    }
+
+    public Index3i set(int x, int y, int z) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        return this;
+    }
+
+    @Override
+    public String toString() {
+        return "(" + x + ", " + y + ", " + z + ")";
+    }
+
 }

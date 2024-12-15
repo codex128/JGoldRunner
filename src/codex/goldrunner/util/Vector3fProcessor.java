@@ -32,36 +32,39 @@ import com.jme3.math.Vector3f;
  */
 public class Vector3fProcessor implements J3mapPropertyProcessor<Vector3f> {
 
-	@Override
-	public String getPropertyIdentifier() {
-		return "Vector3f";
-	}
-	@Override
-	public Class<Vector3f> type() {
-		return Vector3f.class;
-	}
-	@Override
-	public Vector3f process(String str) {
-		if (!str.startsWith(getPropertyIdentifier()+"(") || !str.endsWith(")")) {
-			return null;
-		}
-		String[] args = str.substring(getPropertyIdentifier().length()+1,
-				str.length()-1).split(",");
-		int i = 0;
-		for (String arg : args) {
-			args[i++] = arg.trim();
-		}
-		float x = Float.parseFloat(args[0]);
-		float y = Float.parseFloat(args[1]);
-		float z = Float.parseFloat(args[2]);
-		return new Vector3f(x, y, z);
-	}
-	@Override
-	public String[] export(Vector3f property) {
-		return new String[]{
-			getPropertyIdentifier()+"("
-				+property.x+","+property.y+","+property.z+")"
-		};
-	}
-	
+    @Override
+    public String getPropertyIdentifier() {
+        return "Vector3f";
+    }
+
+    @Override
+    public Class<Vector3f> type() {
+        return Vector3f.class;
+    }
+
+    @Override
+    public Vector3f process(String str) {
+        if (!str.startsWith(getPropertyIdentifier() + "(") || !str.endsWith(")")) {
+            return null;
+        }
+        String[] args = str.substring(getPropertyIdentifier().length() + 1,
+                str.length() - 1).split(",");
+        int i = 0;
+        for (String arg : args) {
+            args[i++] = arg.trim();
+        }
+        float x = Float.parseFloat(args[0]);
+        float y = Float.parseFloat(args[1]);
+        float z = Float.parseFloat(args[2]);
+        return new Vector3f(x, y, z);
+    }
+
+    @Override
+    public String[] export(Vector3f property) {
+        return new String[]{
+            getPropertyIdentifier() + "("
+            + property.x + "," + property.y + "," + property.z + ")"
+        };
+    }
+
 }

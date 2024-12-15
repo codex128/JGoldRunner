@@ -16,49 +16,59 @@ import java.util.concurrent.ThreadLocalRandom;
  * @author gary
  */
 public class ConcreteControl extends UnitControl {
-	//Any local variables should be encapsulated by getters/setters so they
-	//appear in the SDK properties window and can be edited.
-	//Right-click a local variable to encapsulate it with getters and setters.
-	
-	public ConcreteControl() {}
-	public ConcreteControl(LevelState level, Index3i index) {
-		super(level, index);
-	}
-	
-	@Override
-	public boolean enter(Traveller travel, boolean force) {
-		return false;
-	}
-	@Override
-	public boolean exit(Traveller travel, boolean force) {
-		return false;
-	}
-	@Override
-	public boolean solid() {
-		return true;
-	}
-	@Override
-	public boolean physical() {
-		return true;
-	}
-	@Override
-	public int zIndex() {
-		return UnitControl.FORE;
-	}
-	
-	@Override
-	public String[] types() {
-		return new String[]{"concrete"};
-	}
-	@Override
-	public Spatial loadSpatial(String type, boolean editor, AssetManager assets) {
-		if (ThreadLocalRandom.current().nextBoolean())
-			return assets.loadModel("Models/units/concrete.j3o");
-		else return assets.loadModel("Models/units/concrete2.j3o");
-	}
-	@Override
-	public UnitControl loadControl(String type, LevelState level, Index3i index) {
-		return new ConcreteControl(level, index);
-	}
-	
+    //Any local variables should be encapsulated by getters/setters so they
+    //appear in the SDK properties window and can be edited.
+    //Right-click a local variable to encapsulate it with getters and setters.
+
+    public ConcreteControl() {
+    }
+
+    public ConcreteControl(LevelState level, Index3i index) {
+        super(level, index);
+    }
+
+    @Override
+    public boolean enter(Traveller travel, boolean force) {
+        return false;
+    }
+
+    @Override
+    public boolean exit(Traveller travel, boolean force) {
+        return false;
+    }
+
+    @Override
+    public boolean solid() {
+        return true;
+    }
+
+    @Override
+    public boolean physical() {
+        return true;
+    }
+
+    @Override
+    public int zIndex() {
+        return UnitControl.FORE;
+    }
+
+    @Override
+    public String[] types() {
+        return new String[]{"concrete"};
+    }
+
+    @Override
+    public Spatial loadSpatial(String type, boolean editor, AssetManager assets) {
+        if (ThreadLocalRandom.current().nextBoolean()) {
+            return assets.loadModel("Models/units/concrete.j3o");
+        } else {
+            return assets.loadModel("Models/units/concrete2.j3o");
+        }
+    }
+
+    @Override
+    public UnitControl loadControl(String type, LevelState level, Index3i index) {
+        return new ConcreteControl(level, index);
+    }
+
 }

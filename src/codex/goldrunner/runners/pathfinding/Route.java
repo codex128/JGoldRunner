@@ -12,25 +12,32 @@ import java.util.LinkedList;
  * @author gary
  */
 public class Route {
-	
-	LinkedList<UnitControl> route = new LinkedList<>();	
-	
-	public Route() {}	
-	
-	protected void addNode(PathNode junction) {
-		route.addFirst(junction.unit);
-	}
-	public UnitControl get() {
-		return route.getFirst();
-	}
-	public void dismiss() {
-		if (!arrived()) route.remove(0);
-	}
-	public boolean arrived() {
-		return route.isEmpty();
-	}
-	public int length() {
-		return route.size();
-	}
-	
+
+    LinkedList<UnitControl> route = new LinkedList<>();
+
+    public Route() {
+    }
+
+    protected void addNode(PathNode junction) {
+        route.addFirst(junction.unit);
+    }
+
+    public UnitControl get() {
+        return route.getFirst();
+    }
+
+    public void dismiss() {
+        if (!arrived()) {
+            route.remove(0);
+        }
+    }
+
+    public boolean arrived() {
+        return route.isEmpty();
+    }
+
+    public int length() {
+        return route.size();
+    }
+
 }

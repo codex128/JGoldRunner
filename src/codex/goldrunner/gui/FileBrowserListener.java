@@ -30,8 +30,9 @@ import java.io.File;
  * @author gary
  */
 public interface FileBrowserListener {
-	
-	public void onFileChosen(FileBrowser browser, File file);
-	public void onBrowserCanceled(FileBrowser browser);
-	
+
+    public void onFileChosen(FileBrowser browser, File file);
+
+    public void onBrowserCanceled(FileBrowser browser);
+
 }

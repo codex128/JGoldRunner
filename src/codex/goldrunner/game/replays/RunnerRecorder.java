@@ -32,19 +32,20 @@ import java.awt.Point;
  * @author gary
  */
 public class RunnerRecorder {
-	
-	RunnerControl record;
-	float time;
-	
-	public void update(float tpf) {
-		time += tpf;
-	}
-	
-	public void recordMovement(int direction) {
-		//timeline.add(new ActionData("move", direction, time));
-	}
-	public void recordWarp(Point index, Vector3f offset) {
-		
-	}
-	
+
+    RunnerControl record;
+    float time;
+
+    public void update(float tpf) {
+        time += tpf;
+    }
+
+    public void recordMovement(int direction) {
+        //timeline.add(new ActionData("move", direction, time));
+    }
+
+    public void recordWarp(Point index, Vector3f offset) {
+
+    }
+
 }
